@@ -24,8 +24,8 @@ const expenseRoute = require("./router/expenseRoute");
 const passwordRoute = require("./router/passwordRoute");
 const auth = require("./authorization/auth");
 
-const serverKey=fs.readFileSync('server.key')
-const serverCert=fs.readFileSync('server.cert')
+// const serverKey=fs.readFileSync('server.key')
+// const serverCert=fs.readFileSync('server.cert')
 
 // app.use(helmet())
 app.use(compression())
