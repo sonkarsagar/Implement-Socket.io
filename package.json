@@ -1,0 +1,25 @@
+{
+  "dependencies": {
+    "aws-sdk": "^2.1407.0",
+    "bcrypt": "^5.1.0",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "helmet": "^7.0.0",
+    "jsonwebtoken": "^9.0.0",
+    "mysql2": "^3.4.2",
+    "razorpay": "^2.8.6",
+    "sequelize": "^6.32.1",
+    "sib-api-v3-sdk": "^8.5.0"
+  },
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
