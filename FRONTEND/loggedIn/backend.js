@@ -16,14 +16,14 @@ const span = document.getElementById("span");
 
 logOut.addEventListener("click", (e) => {
   e.preventDefault();
-  location.replace("http://54.161.199.191:3000/logIn/login.html");
+  location.replace("http://54.161.199.191/logIn/login.html");
   localStorage.removeItem("token");
 });
 
 download.addEventListener("click", (e) => {
   e.preventDefault();
   axios
-    .get("http://54.161.199.191:3000/expense/download", {
+    .get("http://54.161.199.191/expense/download", {
       headers: { Authorization: localStorage.getItem("token") },
     })
     .then((result) => {
@@ -37,7 +37,7 @@ download.addEventListener("click", (e) => {
 premium.addEventListener("click", (e) => {
   e.preventDefault();
   axios
-    .get("http://54.161.199.191:3000/expense/premium", {
+    .get("http://54.161.199.191/expense/premium", {
       headers: { Authorization: localStorage.getItem("token") },
     })
     .then((response) => {
@@ -46,7 +46,7 @@ premium.addEventListener("click", (e) => {
         order_id: response.data.order.id,
         handler: function (response) {
           axios.post(
-            "http://54.161.199.191:3000/expense/successTransaction",
+            "http://54.161.199.191/expense/successTransaction",
             {
               order_id: options.order_id,
               payment_id: response.razorpay_payment_id,
@@ -54,7 +54,7 @@ premium.addEventListener("click", (e) => {
             { headers: { Authorization: localStorage.getItem("token") } }
           );
           alert("You are a Premium User");
-          location.replace("http://54.161.199.191:3000/loggedIn/premiumIndex.html");
+          location.replace("http://54.161.199.191/loggedIn/premiumIndex.html");
         },
       };
       const rzp1 = new Razorpay(options);
@@ -63,7 +63,7 @@ premium.addEventListener("click", (e) => {
 
       rzp1.on("payment.failed", function (response) {
         axios.post(
-          "http://54.161.199.191:3000/expense/failTransaction",
+          "http://54.161.199.191/expense/failTransaction",
           {
             order_id: options.order_id,
           },
@@ -81,7 +81,7 @@ submit.addEventListener("click", (e) => {
   e.preventDefault();
   axios
     .post(
-      "http://54.161.199.191:3000/expense",
+      "http://54.161.199.191/expense",
       {
         date: new Date().toString().slice(4, 15),
         description: description.value,
@@ -139,7 +139,7 @@ tBody.addEventListener("click", (e) => {
 
     axios
       .delete(
-        `http://54.161.199.191:3000/expense/${e.target.parentElement.parentElement.id}`
+        `http://54.161.199.191/expense/${e.target.parentElement.parentElement.id}`
       )
       .then((res) => {})
       .catch((err) => {
@@ -155,15 +155,15 @@ window.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem('limit', 5)
   }
   if (!localStorage.getItem("token")) {
-    return location.replace("http://54.161.199.191:3000/logIn/login.html");
+    return location.replace("http://54.161.199.191/logIn/login.html");
   }
   axios
-    .get("http://54.161.199.191:3000/user", {
+    .get("http://54.161.199.191/user", {
       headers: { Authorization: localStorage.getItem("token") },
     })
     .then((result) => {
       if (result.data[0].premiumUser == true) {
-        location.replace("http://54.161.199.191:3000/loggedIn/premiumIndex.html");
+        location.replace("http://54.161.199.191/loggedIn/premiumIndex.html");
       }
     })
     .catch((err) => {
@@ -171,7 +171,7 @@ window.addEventListener("DOMContentLoaded", () => {
     });
   axios
     .get(
-      `http://54.161.199.191:3000/expense/pagination?page=${page}&limit=${localStorage.getItem(
+      `http://54.161.199.191/expense/pagination?page=${page}&limit=${localStorage.getItem(
         "limit"
       )}`,
       {
@@ -227,7 +227,7 @@ function getExpenses(page) {
   tbody.innerHTML = "";
   axios
     .get(
-      `http://54.161.199.191:3000/expense/pagination?page=${page}&limit=${localStorage.getItem(
+      `http://54.161.199.191/expense/pagination?page=${page}&limit=${localStorage.getItem(
         "limit"
       )}`,
       {

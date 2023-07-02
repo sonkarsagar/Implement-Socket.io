@@ -7,19 +7,19 @@ const submit=document.getElementById('submit')
 const logIn=document.getElementById('logIn')
 
 logIn.addEventListener('click',()=>{
-    location.replace('http://54.161.199.191:3000/logIn/login.html')
+    location.replace('http://54.161.199.191/logIn/login.html')
 })
 
 submit.addEventListener('click',(e)=>{
     e.preventDefault()
-    axios.post('http://54.161.199.191:3000/user',{
+    axios.post('http://54.161.199.191/user',{
         name: name.value,
         sur: sur.value,
         email: email.value,
         password: password.value
     }).then((result) => {
         alert('Successfully Signed Up')
-        location.replace('http://54.161.199.191:3000/logIn/login.html')
+        location.replace('http://54.161.199.191/logIn/login.html')
     }).catch((err) => {
         const error=document.createElement('p')
         error.appendChild(document.createTextNode('USER ALREADY EXISTS'))

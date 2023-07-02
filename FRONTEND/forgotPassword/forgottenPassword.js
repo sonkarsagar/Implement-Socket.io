@@ -3,13 +3,13 @@ const cancel = document.getElementById("cancel");
 const search = document.getElementById("search");
 
 cancel.addEventListener("click", (e) => {
-  location.replace("http://54.161.199.191:3000/logIn/login.html");
+  location.replace("http://54.161.199.191/logIn/login.html");
 });
 
 search.addEventListener("click", async (e) => {
 //   e.preventDefault();
   axios
-    .post("http://54.161.199.191:3000/password/forgotpassword", {
+    .post("http://54.161.199.191/password/forgotpassword", {
       email: email.value,
     })
     .then((result) => {

@@ -16,14 +16,14 @@ const span = document.getElementById("span");
 
 logOut.addEventListener("click", (e) => {
   e.preventDefault();
-  location.replace("http://54.161.199.191:3000/logIn/login.html");
+  location.replace("http://54.161.199.191/logIn/login.html");
   localStorage.removeItem("token");
 });
 
 download.addEventListener("click", (e) => {
   e.preventDefault();
   axios
-    .get("http://54.161.199.191:3000/expense/download", {
+    .get("http://54.161.199.191/expense/download", {
       headers: { Authorization: localStorage.getItem("token") },
     })
     .then((result) => {
@@ -37,7 +37,7 @@ download.addEventListener("click", (e) => {
 leaderboard.addEventListener("click", (e) => {
   e.preventDefault();
   axios
-    .get("http://54.161.199.191:3000/expense/premium/leaderboard")
+    .get("http://54.161.199.191/expense/premium/leaderboard")
     .then((result) => {
       count=1
       result.data.forEach((element) => {
@@ -69,7 +69,7 @@ submit.addEventListener("click", (e) => {
   e.preventDefault();
   axios
     .post(
-      "http://54.161.199.191:3000/expense",
+      "http://54.161.199.191/expense",
       {
         date: new Date().toString().slice(4, 15),
         description: description.value,
@@ -127,7 +127,7 @@ tBody.addEventListener("click", (e) => {
 
     axios
       .delete(
-        `http://54.161.199.191:3000/expense/${e.target.parentElement.parentElement.id}`
+        `http://54.161.199.191/expense/${e.target.parentElement.parentElement.id}`
       )
       .then((res) => {})
       .catch((err) => {
@@ -141,7 +141,7 @@ const page = 1;
 window.addEventListener("DOMContentLoaded", () => {
   axios
     .get(
-      `http://54.161.199.191:3000/expense/pagination?page=${page}&limit=${localStorage.getItem(
+      `http://54.161.199.191/expense/pagination?page=${page}&limit=${localStorage.getItem(
         "limit"
       )}`,
       {
@@ -197,7 +197,7 @@ function getExpenses(page) {
   tbody.innerHTML = "";
   axios
     .get(
-      `http://54.161.199.191:3000/expense/pagination?page=${page}&limit=${localStorage.getItem(
+      `http://54.161.199.191/expense/pagination?page=${page}&limit=${localStorage.getItem(
         "limit"
       )}`,
       {
