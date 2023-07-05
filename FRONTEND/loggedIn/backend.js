@@ -152,7 +152,7 @@ const page = 1;
 
 window.addEventListener("DOMContentLoaded", () => {
   if (!localStorage.getItem("limit")) {
-    localStorage.setItem('limit', 5)
+    localStorage.setItem("limit", 5);
   }
   if (!localStorage.getItem("token")) {
     return location.replace("http://54.161.199.191/logIn/login.html");
@@ -180,7 +180,6 @@ window.addEventListener("DOMContentLoaded", () => {
     )
     .then((res) => {
       showPagination(res.data);
-
       res.data.result.reverse().forEach((element) => {
         const deleteb = document.createElement("button");
         deleteb.setAttribute("class", "btn btn-danger btn-sm");
@@ -225,15 +224,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
 function getExpenses(page) {
   tbody.innerHTML = "";
-  axios
-    .get(
-      `http://54.161.199.191/expense/pagination?page=${page}&limit=${localStorage.getItem(
-        "limit"
-      )}`,
-      {
-        headers: { Authorization: localStorage.getItem("token") },
-      }
-    )
+  axios.get(`http://54.161.199.191/expense/pagination?page=${page}&limit=${localStorage.getItem("limit")}`, {headers: { Authorization: localStorage.getItem("token") },})
     .then((res) => {
       showPagination(res.data);
       res.data.result.reverse().forEach((element) => {
