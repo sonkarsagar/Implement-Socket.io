@@ -35,6 +35,7 @@ submit.addEventListener("click", (e) => {
       }
     })
     .catch((err) => {
+        alert("Can't Find User. Please Sign Up");
       console.log(err);
     });
 });

@@ -10,7 +10,7 @@ logOut.addEventListener("click", (e) => {
 });
 
 send.addEventListener("click", (e) => {
-  e.preventDefault();
+//   e.preventDefault();
   axios
     .post(
       "http://localhost:3000/postChat",
@@ -22,40 +22,55 @@ send.addEventListener("click", (e) => {
     .then((result) => {
       const row = document.createElement("tr");
       const data = document.createElement("td");
-      data.append(document.createTextNode("You: " + chat.value));
-      row.append(data);
-      tbody.append(row);
+      data.appendChild(document.createTextNode("You: " + chat.value));
+      row.appendChild(data);
+      tbody.appendChild(row);
     })
     .catch((err) => {
       console.log(err);
     });
 });
 
-window.addEventListener("DOMContentLoaded", (e) => {
-  e.preventDefault();
-  axios.get("http://localhost:3000/getChat", {headers: { Authorization: localStorage.getItem("token") },}).then((chat) => {
-      chat.data.forEach((element) => {
-        if(element.token===localStorage.getItem('token')){
-            const row = document.createElement("tr");
-            const data = document.createElement("td");
-            data.append(document.createTextNode("You: " + element.chat));
-            row.append(data);
-            tbody.append(row);
-        }else{
-            axios.get(`http://localhost:3000/getUser/${element.UserId}`, {headers: { Authorization: localStorage.getItem("token") },}).then((user) => {
-                const row = document.createElement("tr");
-                const data = document.createElement("td");
-                data.append(document.createTextNode(`${user.data.first} ${user.data.sur}: ` + element.chat));
-                row.append(data);
-                tbody.append(row);
-            })
-            .catch((err) => {
-                console.log(err);
-            });
-        }
+window.addEventListener("DOMContentLoaded", async (e) => {
+    e.preventDefault();
+    if(!localStorage.getItem('token')){
+        location.replace('http://localhost:5500/FRONTEND/logIn/login.html')
+    }
+    try {
+      const chat = await axios.get("http://localhost:3000/getChat", {
+        headers: { Authorization: localStorage.getItem("token") },
       });
-    })
-    .catch((err) => {
+  
+      for (const element of chat.data) {
+        if (element.token == localStorage.getItem("token")) {
+          console.log(element);
+          const row = document.createElement("tr");
+          const data = document.createElement("td");
+          data.appendChild(document.createTextNode("You: " + element.chat));
+          row.appendChild(data);
+          tbody.appendChild(row);
+        } else {
+          console.log(element);
+          const user = await axios.get(
+            `http://localhost:3000/getUser/${element.UserId}`,
+            {
+              headers: { Authorization: localStorage.getItem("token") },
+            }
+          );
+  
+          const row = document.createElement("tr");
+          const data = document.createElement("td");
+          data.appendChild(
+            document.createTextNode(
+              `${user.data.first} ${user.data.sur}: ` + element.chat
+            )
+          );
+          row.appendChild(data);
+          tbody.appendChild(row);
+        }
+      }
+    } catch (err) {
       console.log(err);
-    });
-});
+    }
+  });
+  

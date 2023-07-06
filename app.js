@@ -68,7 +68,6 @@ app.post('/postChat', authorization.authorize, (req,res,next)=>{
 
 app.get('/getChat',(req,res,next)=>{
   Chat.findAll().then((result) => {
-    User.fin
     res.json(result)
   }).catch((err) => {
     console.log(err);
