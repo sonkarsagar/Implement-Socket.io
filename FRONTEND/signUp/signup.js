@@ -24,5 +24,5 @@ submit.addEventListener('click',async (e)=>{
 
 logIn.addEventListener('click',(e)=>{
     e.preventDefault()
-    location.replace('http://localhost:5500/FRONTEND/logIn/')
+    location.replace('http://localhost:5500/FRONTEND/logIn/login.html')
 })

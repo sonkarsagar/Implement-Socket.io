@@ -11,7 +11,8 @@ submit.addEventListener('click',(e)=>{
         email: email.value,
         password: password.value
     }).then((result) => {
-        if(result.data){
+        localStorage.setItem('token', result.data.token)
+        if(result.data.value){
             alert('Successfully Logged In')
         }else{
             alert('Incorrect Email/Password')
