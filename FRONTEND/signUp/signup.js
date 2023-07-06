@@ -16,7 +16,7 @@ submit.addEventListener('click',async (e)=>{
         alert('Successfully Signed Up')
         location.replace('http://localhost:5500/FRONTEND/logIn/login.html')
     }).catch((err) => {
-        alert('User Already Exists')
+        alert('User Already Exists, Please Login')
         console.log(err);
     });
 

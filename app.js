@@ -8,7 +8,9 @@ const User=require('./models/user')
 const sequelize=require('./util/database')
 const bcrypt=require('bcrypt')
 
-app.use(cors())
+app.use(cors({
+    origin: 'http://localhost:5500',
+}))
 
 app.use(bodyParser.json())
 
@@ -25,9 +27,9 @@ app.post('/postUser', (req, res, next)=>{
             res.status(400).json(err)
             console.log(err);
         });
-        // if(err){
-        //     console.log(err);
-        // }
+        if(err){
+            console.log(err);
+        }
     })
    
 })
