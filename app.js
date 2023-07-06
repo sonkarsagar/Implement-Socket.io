@@ -31,7 +31,24 @@ app.post('/postUser', (req, res, next)=>{
             console.log(err);
         }
     })
-   
+})
+
+app.post('/login',(req,res,next)=>{
+    User.findOne({where: {email: req.body.email}}).then((response) => {
+        if(response){
+            bcrypt.compare(req.body.password, response.password, function(err, result) {
+                res.status(201).json(result)
+                if(err){
+                    console.log(err);
+                }
+            });
+        }else{
+            res.status(201).json(false)
+        }
+        
+    }).catch((err) => {
+        console.log(err);
+    });
 })
 
 app.get('/', (req, res, next)=>{
