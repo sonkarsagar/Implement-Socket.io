@@ -6,8 +6,11 @@ const cors = require("cors");
 const jwt = require("jsonwebtoken");
 
 const User = require("./models/user");
+const Chat=require('./models/chat')
 const sequelize = require("./util/database");
 const bcrypt = require("bcrypt");
+
+const authorization=require('./authorization/auth')
 
 app.use(
   cors({
@@ -38,6 +41,40 @@ app.post("/postUser", (req, res, next) => {
   });
 });
 
+app.get('/getUser/:UserId', authorization.authorize, (req,res,next)=>{
+  User.findByPk(req.params.UserId).then((result) => {
+    res.json(result)
+  }).catch((err) => {
+    console.log(err);
+  });
+})
+
+app.post('/postChat', authorization.authorize, (req,res,next)=>{
+  User.findOne({where:{id: req.user.id}}).then((result) => {
+    Chat.create({
+      chat: req.body.chat,
+      token: req.token,
+      UserId: result.id
+    }).then((result) => {
+      res.status(201).json(result)
+    }).catch((err) => {
+      console.log(err);
+    });
+  }).catch((err) => {
+    console.log(err);
+  });
+  
+})
+
+app.get('/getChat',(req,res,next)=>{
+  Chat.findAll().then((result) => {
+    User.fin
+    res.json(result)
+  }).catch((err) => {
+    console.log(err);
+  });
+})
+
 app.post("/login", (req, res, next) => {
   User.findOne({ where: { email: req.body.email } })
     .then((response) => {
@@ -48,7 +85,7 @@ app.post("/login", (req, res, next) => {
           function (err, result) {
             result = {
               value: result,
-              token: generateAccessToken(response.email),
+              token: generateAccessToken(response.id),
             };
             res.status(201).json(result);
             if (err) {
@@ -64,8 +101,8 @@ app.post("/login", (req, res, next) => {
       console.log(err);
     });
 });
-function generateAccessToken(email) {
-  return jwt.sign({ username: email }, process.env.TOKEN_SECRET, {
+function generateAccessToken(userId) {
+  return jwt.sign({id: userId}, process.env.TOKEN_SECRET, {
     expiresIn: "1h",
   });
 }
@@ -73,6 +110,9 @@ function generateAccessToken(email) {
 app.get("/", (req, res, next) => {
   res.send("<h1>Backend Is Working</h1>");
 });
+
+User.hasMany(Chat)
+Chat.belongsTo(User)
 
 sequelize
   .sync()
