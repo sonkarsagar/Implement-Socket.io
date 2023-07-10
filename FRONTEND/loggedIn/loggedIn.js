@@ -33,11 +33,12 @@ window.addEventListener("DOMContentLoaded", async (e) => {
   if (!localStorage.getItem("token")) {
     location.replace("http://localhost:5500/FRONTEND/logIn/login.html");
   }
-  if(!localStorage.getItem("message")){
-    localStorage.setItem('message',JSON.stringify([]))
-  }
+  // if(!localStorage.getItem("message")){
+    
+  // }
   setInterval(async ()=>{
     try {
+      localStorage.setItem('message',JSON.stringify([]))
       tbody.innerHTML = "";
       const chat = await axios.get(`http://localhost:3000/getChat/${JSON.parse(localStorage.getItem('message'))[-1]}`, {headers: {Authorization: localStorage.getItem("token")}})
       if(chat){
