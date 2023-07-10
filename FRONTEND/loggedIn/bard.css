@@ -3,7 +3,7 @@ body {
     margin: 0;
     padding: 0;
   }
-  
+
   h1 {
     text-align: center;
     font-size: 3em;
@@ -25,15 +25,6 @@ body {
     margin-bottom: 10px;
   }
 
-  /* button {
-    background-color: #0b9c26;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-  } */
-
   button {
     background-color: #0095dd;
     color: white;
@@ -43,10 +34,15 @@ body {
     cursor: pointer;
   }
 
-  /* .input-group {
+  .input-group {
     position: relative;
-    bottom: -440px;
-  } */
+    bottom: 25px;
+  }
+
+  div.position-absolute{
+    width: 1250px;
+    margin: auto;
+  }
   
   .navbar {
     background-color: transparent;
