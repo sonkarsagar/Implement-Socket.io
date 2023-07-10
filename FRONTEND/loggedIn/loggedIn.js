@@ -49,14 +49,15 @@ window.addEventListener("DOMContentLoaded", async (e) => {
       const row = document.createElement("tr");
       const data = document.createElement("td");
       const User=await axios.get(`http://localhost:3000/getUser/${element.UserId}`, { headers: { Authorization: localStorage.getItem("token")}})
-      // console.log(User);
       data.appendChild(document.createTextNode(`${User.data.first} ${User.data.sur}: ` + element.chat));
       row.appendChild(data);
       tbody.appendChild(row);
     }
     
   } catch (err) {
-    // location.replace('http://localhost:5500/FRONTEND/logIn/login.html')
+    localStorage.removeItem("token");
+    localStorage.removeItem("message");
+    location.replace("http://localhost:5500/FRONTEND/logIn/login.html");
     console.log(err);
   }
 });
