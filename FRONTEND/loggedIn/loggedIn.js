@@ -6,22 +6,20 @@ const logOut = document.getElementById("logOut");
 logOut.addEventListener("click", (e) => {
   e.preventDefault();
   localStorage.removeItem("token");
+  localStorage.removeItem("message");
   location.replace("http://localhost:5500/FRONTEND/logIn/login.html");
 });
 
 send.addEventListener("click", async (e) => {
-  //   e.preventDefault();
+    // e.preventDefault();
   try {
-    const result = await axios.post(
-      "http://localhost:3000/postChat",
-      {
-        chat: chat.value,
-      },
-      { headers: { Authorization: localStorage.getItem("token") } }
-    );
+    const result = await axios.post("http://localhost:3000/postChat", {
+      chat: chat.value,
+    }, { headers: { Authorization: localStorage.getItem("token")}});
     const row = document.createElement("tr");
     const data = document.createElement("td");
-    data.appendChild(document.createTextNode("You: " + chat.value));
+    const User=await axios.get(`http://localhost:3000/getUser/${result.data.UserId}`, { headers: { Authorization: localStorage.getItem("token")}})
+    data.appendChild(document.createTextNode(`${User.data.first} ${User.data.sur}: ` + result.data.chat));
     row.appendChild(data);
     tbody.appendChild(row);
   } catch (error) {
@@ -34,39 +32,31 @@ window.addEventListener("DOMContentLoaded", async (e) => {
   if (!localStorage.getItem("token")) {
     location.replace("http://localhost:5500/FRONTEND/logIn/login.html");
   }
+  if(!localStorage.getItem("message")){
+    localStorage.setItem('message',JSON.stringify([]))
+  }
   try {
     tbody.innerHTML = "";
-    const chat = await axios.get("http://localhost:3000/getChat", {
-      headers: { Authorization: localStorage.getItem("token") },
-    });
-
-    for (const element of chat.data) {
-      if (element.token == localStorage.getItem("token")) {
-        const row = document.createElement("tr");
-        const data = document.createElement("td");
-        data.appendChild(document.createTextNode("You: " + element.chat));
-        row.appendChild(data);
-        tbody.appendChild(row);
-      } else {
-        const user = await axios.get(
-          `http://localhost:3000/getUser/${element.UserId}`,
-          {
-            headers: { Authorization: localStorage.getItem("token") },
-          }
-        );
-
-        const row = document.createElement("tr");
-        const data = document.createElement("td");
-        data.appendChild(
-          document.createTextNode(
-            `${user.data.first} ${user.data.sur}: ` + element.chat
-          )
-        );
-        row.appendChild(data);
-        tbody.appendChild(row);
-      }
+    const chat = await axios.get(`http://localhost:3000/getChat/${JSON.parse(localStorage.getItem('message'))[-1]}`, {headers: {Authorization: localStorage.getItem("token")}})
+    if(chat){
+      message=JSON.parse(localStorage.getItem('message'))
+      message=message.concat(chat.data)
+      message=message.slice(-11)
+      localStorage.setItem('message',JSON.stringify(message))
     }
+    array=JSON.parse(localStorage.getItem('message'))
+    for(element of array){
+      const row = document.createElement("tr");
+      const data = document.createElement("td");
+      const User=await axios.get(`http://localhost:3000/getUser/${element.UserId}`, { headers: { Authorization: localStorage.getItem("token")}})
+      // console.log(User);
+      data.appendChild(document.createTextNode(`${User.data.first} ${User.data.sur}: ` + element.chat));
+      row.appendChild(data);
+      tbody.appendChild(row);
+    }
+    
   } catch (err) {
+    // location.replace('http://localhost:5500/FRONTEND/logIn/login.html')
     console.log(err);
   }
 });

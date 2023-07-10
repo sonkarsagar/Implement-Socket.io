@@ -19,6 +19,7 @@ submit.addEventListener("click", async (e) => {
       alert("Incorrect Email/Password");
     }
   } catch (error) {
+    alert("Incorrect Email/Password");
     console.log(error);
   }
 });

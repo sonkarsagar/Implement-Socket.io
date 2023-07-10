@@ -6,11 +6,11 @@ const cors = require("cors");
 const jwt = require("jsonwebtoken");
 
 const User = require("./models/user");
-const Chat=require('./models/chat')
+const Chat = require("./models/chat");
 const sequelize = require("./util/database");
 const bcrypt = require("bcrypt");
 
-const authorization=require('./authorization/auth')
+const authorization = require("./authorization/auth");
 
 app.use(
   cors({
@@ -41,38 +41,58 @@ app.post("/postUser", (req, res, next) => {
   });
 });
 
-app.get('/getUser/:UserId', authorization.authorize, (req,res,next)=>{
-  User.findByPk(req.params.UserId).then((result) => {
-    res.json(result)
-  }).catch((err) => {
-    console.log(err);
-  });
-})
-
-app.post('/postChat', authorization.authorize, (req,res,next)=>{
-  User.findOne({where:{id: req.user.id}}).then((result) => {
-    Chat.create({
-      chat: req.body.chat,
-      token: req.token,
-      UserId: result.id
-    }).then((result) => {
-      res.status(201).json(result)
-    }).catch((err) => {
+app.get("/getUser/:UserId", authorization.authorize, (req, res, next) => {
+  User.findByPk(req.params.UserId)
+    .then((result) => {
+      res.json(result);
+    })
+    .catch((err) => {
       console.log(err);
     });
-  }).catch((err) => {
-    console.log(err);
-  });
-  
-})
+});
 
-app.get('/getChat',(req,res,next)=>{
-  Chat.findAll().then((result) => {
-    res.json(result)
-  }).catch((err) => {
-    console.log(err);
-  });
-})
+app.post("/postChat", authorization.authorize, (req, res, next) => {
+  User.findOne({ where: { id: req.user.id } })
+    .then((result) => {
+      Chat.create({
+        chat: req.body.chat,
+        UserId: result.id,
+      })
+        .then((result) => {
+          res.status(201).json(result);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+
+app.get("/getChat/:MessageId", (req, res, next) => {
+  if (req.params.MessageId=='undefined') {
+    Chat.findAll().then((result) => {
+      if(result){
+        res.json(result.slice(-11))
+      }
+    }).catch((err) => {
+        console.log(err);
+    });
+  }else{
+    Chat.findAll().then((result) => {
+      if(result){
+        lastLSId=req.params.MessageId
+        lastId=result.slice(-1)[0].id
+        if(lastLSId<lastId){
+          res.json(result.slice(lastLSId,lastId))
+        }
+      }
+    }).catch((err) => {
+        console.log(err);
+    });
+  }
+});
 
 app.post("/login", (req, res, next) => {
   User.findOne({ where: { email: req.body.email } })
@@ -101,7 +121,7 @@ app.post("/login", (req, res, next) => {
     });
 });
 function generateAccessToken(userId) {
-  return jwt.sign({id: userId}, process.env.TOKEN_SECRET, {
+  return jwt.sign({ id: userId }, process.env.TOKEN_SECRET, {
     expiresIn: "1h",
   });
 }
@@ -110,8 +130,8 @@ app.get("/", (req, res, next) => {
   res.send("<h1>Backend Is Working</h1>");
 });
 
-User.hasMany(Chat)
-Chat.belongsTo(User)
+User.hasMany(Chat);
+Chat.belongsTo(User);
 
 sequelize
   .sync()

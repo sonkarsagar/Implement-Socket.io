@@ -12,10 +12,6 @@ const Chat=sequelize.define('Chats',{
         allowNull: false,
         type: Sequelize.STRING
     },
-    token:{
-        allowNull: false,
-        type: Sequelize.STRING
-    }
 })
 
 module.exports=Chat
