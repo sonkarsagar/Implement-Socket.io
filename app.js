@@ -3,14 +3,22 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const path=require('path')
 const jwt = require("jsonwebtoken");
 
 const User = require("./models/user");
 const Chat = require("./models/chat");
+const Group = require('./models/group')
+const GroupUser = require('./models/groupUser')
 const sequelize = require("./util/database");
+const raw = require('./util/rawdatabse')
 const bcrypt = require("bcrypt");
 
 const authorization = require("./authorization/auth");
+
+const userRoutes = require('./routers/userRoute')
+const loginRoutes = require('./routers/loginRoute');
+const Sequelize = require("sequelize");
 
 app.use(
   cors({
@@ -20,26 +28,36 @@ app.use(
 
 app.use(bodyParser.json());
 
-app.post("/postUser", (req, res, next) => {
-  bcrypt.hash(req.body.password, 10, function (err, hash) {
-    User.create({
-      first: req.body.first,
-      sur: req.body.sur,
-      email: req.body.email,
-      password: hash,
+app.use(userRoutes)
+app.use(loginRoutes)
+
+app.get('/groupParams/:groupName', authorization.authorize, (req, res, next) => {
+  Group.create({
+    name: req.params.groupName,
+    UserId: req.user.id
+  }).then((result) => {
+    GroupUser.create({
+      UserId: req.user.id,
+      GroupId: result.id
     })
-      .then((result) => {
-        res.status(201).json(result);
-      })
-      .catch((err) => {
-        res.status(400).json(err);
-        console.log(err);
-      });
-    if (err) {
-      console.log(err);
-    }
+    res.json(result)
+  }).catch((err) => {
+    console.log(err);
   });
-});
+})
+
+app.get('/group/getGroup', authorization.authorize, (req, res) => {
+  raw.execute(`SELECT *
+              FROM chatgroups cg
+              JOIN groupusers gu
+              ON cg.id=gu.GroupId
+              WHERE gu.UserId=${req.user.id}`)
+    .then((result) => {
+      res.json(result[0])
+    }).catch((err) => {
+      console.log(err);
+    });
+})
 
 app.get("/getUser/:UserId", authorization.authorize, (req, res, next) => {
   User.findByPk(req.params.UserId)
@@ -51,12 +69,22 @@ app.get("/getUser/:UserId", authorization.authorize, (req, res, next) => {
     });
 });
 
+app.get(`/copyLink`, authorization.authorize, async (req,res)=>{
+  
+    Group.update({
+      UserId: req.user.id,
+      GroupId: req.query.grpId
+    })
+  
+})
+
 app.post("/postChat", authorization.authorize, (req, res, next) => {
   User.findOne({ where: { id: req.user.id } })
     .then((result) => {
       Chat.create({
         chat: req.body.chat,
         UserId: result.id,
+        chatgroupId: req.body.chatgroupid
       })
         .then((result) => {
           res.status(201).json(result);
@@ -70,61 +98,49 @@ app.post("/postChat", authorization.authorize, (req, res, next) => {
     });
 });
 
-app.get("/getChat/:MessageId", (req, res, next) => {
-  if (req.params.MessageId=='undefined') {
+app.get('/group/getGroupChat/:GroupId', (req, res) => {
+  Chat.findAll({ where: { chatgroupId: req.params.GroupId } }).then((result) => {
+    res.json(result)
+  }).catch((err) => {
+    console.log(err);
+  });
+})
+
+app.get("/getChat/", (req, res, next) => {
+  console.log(req.query.MessageId);
+  if (req.query.MessageId == 'undefined') {
+    raw.execute(`SELECT *
+                FROM chats c
+                JOIN chatgroups cg
+                ON c.chatgroupId=cg.id`)
+      .then((result) => {
+        console.log(result[0]);
+        // res.json(result[0])
+      }).catch((err) => {
+        console.log(err);
+      });
+
     Chat.findAll().then((result) => {
-      if(result){
-        res.json(result.slice(-11))
+      if (result) {
+        res.json(result.slice(-10))
       }
     }).catch((err) => {
-        console.log(err);
+      console.log(err);
     });
-  }else{
+  } else {
     Chat.findAll().then((result) => {
-      if(result){
-        lastLSId=req.params.MessageId
-        lastId=result.slice(-1)[0].id
-        if(lastLSId<lastId){
-          res.json(result.slice(lastLSId,lastId))
+      if (result) {
+        lastLSId = req.params.MessageId
+        lastId = result.slice(-1)[0].id
+        if (lastLSId < lastId) {
+          res.json(result.slice(lastLSId, lastId))
         }
       }
     }).catch((err) => {
-        console.log(err);
+      console.log(err);
     });
   }
 });
-
-app.post("/login", (req, res, next) => {
-  User.findOne({ where: { email: req.body.email } })
-    .then((response) => {
-      if (response) {
-        bcrypt.compare(
-          req.body.password,
-          response.password,
-          function (err, result) {
-            result = {
-              value: result,
-              token: generateAccessToken(response.id),
-            };
-            res.status(201).json(result);
-            if (err) {
-              console.log(err);
-            }
-          }
-        );
-      } else {
-        res.status(400).json(false);
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-});
-function generateAccessToken(userId) {
-  return jwt.sign({ id: userId }, process.env.TOKEN_SECRET, {
-    expiresIn: "1h",
-  });
-}
 
 app.get("/", (req, res, next) => {
   res.send("<h1>Backend Is Working</h1>");
@@ -132,6 +148,12 @@ app.get("/", (req, res, next) => {
 
 User.hasMany(Chat);
 Chat.belongsTo(User);
+
+User.hasMany(Group)
+Group.belongsTo(User)
+
+Group.hasMany(Chat)
+Chat.belongsTo(Group)
 
 sequelize
   .sync()
