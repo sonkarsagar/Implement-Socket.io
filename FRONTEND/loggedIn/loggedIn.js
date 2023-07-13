@@ -3,6 +3,21 @@ const crtGrp = document.getElementById("dropdown");
 const grptbody = document.getElementById("grptbody");
 const chatthead = document.getElementById("chatthead");
 const main_chat = document.getElementById("main-chat");
+const inviteLink = document.getElementById("inviteLink");
+const invitebtn = document.getElementById("invite");
+
+invitebtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  axios
+    .get(`${inviteLink.value}`, {
+      headers: { Authorization: localStorage.getItem("token") },
+    })
+    .then((result) => {})
+    .catch((err) => {
+      alert("Already a user.");
+    });
+  location.reload();
+});
 
 crtGrp.addEventListener("click", (e) => {
   e.preventDefault();
@@ -11,25 +26,24 @@ crtGrp.addEventListener("click", (e) => {
     .get(`http://localhost:3000/groupParams/${grpName}`, {
       headers: { Authorization: localStorage.getItem("token") },
     })
-    .then((result) => {
-      // console.log(result);
-    })
+    .then((result) => {})
     .catch((err) => {
       console.log(err);
     });
+  location.reload();
 });
 
 logOut.addEventListener("click", (e) => {
   e.preventDefault();
   localStorage.removeItem("token");
   localStorage.removeItem("message");
-  location.replace("http://localhost:5500/FRONTEND/logIn/login.html");
+  location.replace("http://localhost:3000/logIn/login.html");
 });
 
 window.addEventListener("DOMContentLoaded", async (e) => {
   e.preventDefault();
   if (!localStorage.getItem("token")) {
-    location.replace("http://localhost:5500/FRONTEND/logIn/login.html");
+    location.replace("http://localhost:3000/logIn/login.html");
   }
   // setInterval(async ()=>{
   try {
@@ -38,7 +52,7 @@ window.addEventListener("DOMContentLoaded", async (e) => {
   } catch (err) {
     // localStorage.removeItem("token");
     // localStorage.removeItem("message");
-    // location.replace("http://localhost:5500/FRONTEND/logIn/login.html");
+    // location.replace("http://localhost:3000/logIn/login.html");
   }
   // },1000)
 });
@@ -60,7 +74,6 @@ async function renderChat(groupName, groupId) {
                         <tbody id="chattbody"></tbody>
                       </table>
                     </div>
-
                     <form action="#" class="form-grp">
                       <div class="input-group mb-3">
                         <input type="text" class="form-control" placeholder="Message" aria-label="Message"
@@ -68,18 +81,21 @@ async function renderChat(groupName, groupId) {
                         <button type="button" class="btn btn-info" id="send">Send</button>
                       </div>
                     </form>`;
-  const copyLink = document.getElementById('dropdown2')
+  const copyLink = document.getElementById("dropdown2");
   const chattbody = document.getElementById("chattbody");
   const chat = document.getElementById("chat");
   const send = document.getElementById("send");
-  copyLink.addEventListener('click', (e)=>{
-    let inputElement=document.createElement('input')
-    inputElement.setAttribute('value', `http://localhost:3000/copyLink?grpname=${groupName}&grpId=${groupId}`)
-    document.body.appendChild(inputElement)
-    inputElement.select()
-    document.execCommand('copy')
-    inputElement.parentNode.removeChild(inputElement)
-  })
+  copyLink.addEventListener("click", (e) => {
+    let inputElement = document.createElement("input");
+    inputElement.setAttribute(
+      "value",
+      `http://localhost:3000/copyLink?grpname=${groupName}&grpId=${groupId}`
+    );
+    document.body.appendChild(inputElement);
+    inputElement.select();
+    document.execCommand("copy");
+    inputElement.parentNode.removeChild(inputElement);
+  });
 
   send.addEventListener("click", async (e) => {
     e.preventDefault();
@@ -92,7 +108,6 @@ async function renderChat(groupName, groupId) {
         },
         { headers: { Authorization: localStorage.getItem("token") } }
       );
-      console.log(result);
       try {
         const row = document.createElement("tr");
         const data = document.createElement("td");
@@ -106,7 +121,6 @@ async function renderChat(groupName, groupId) {
           )
         );
         row.appendChild(data);
-        console.log(row);
         chattbody.appendChild(row);
       } catch (err) {
         console.log(err);
@@ -159,7 +173,7 @@ async function renderGroup() {
     .then((result) => {
       for (element of result.data) {
         const row = document.createElement("tr");
-        row.setAttribute("id", `${element.id}`);
+        row.setAttribute("id", `${element.GroupId}`);
         const data = document.createElement("td");
         data.appendChild(document.createTextNode(`${element.name}`));
         row.appendChild(data);
@@ -167,12 +181,8 @@ async function renderGroup() {
           if (selectedRow) {
             selectedRow.removeAttribute("style");
           }
-          e.target.setAttribute(
-            "style",
-            "background-color: #0095dd; color: white;"
-          );
+          e.target.setAttribute("style", "background-color: #0095dd; color: white;");
           selectedRow = e.target;
-
           axios
             .get(
               `http://localhost:3000/group/getGroupChat/${e.target.parentElement.id}`,
@@ -215,4 +225,22 @@ async function renderGroup() {
     .catch((err) => {
       console.log(err);
     });
+}
+
+function myFunction() {
+  const input = document.getElementById("myInput");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("myTable");
+  tr = table.getElementsByTagName("tr");
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[0];
+    if (td) {
+      txtValue = td.textContent || td.innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }
+  }
 }

@@ -14,7 +14,7 @@ submit.addEventListener("click", async (e) => {
     localStorage.setItem("token", result.data.token);
     if (result.data.value) {
       alert("Successfully Logged In");
-      location.replace("http://localhost:5500/FRONTEND/loggedIn/loggedIn.html");
+      location.replace("http://localhost:3000/loggedIn/loggedIn.html");
     } else {
       alert("Incorrect Email/Password");
     }
@@ -26,5 +26,5 @@ submit.addEventListener("click", async (e) => {
 
 create.addEventListener("click", (e) => {
   e.preventDefault();
-  location.replace("http://localhost:5500/FRONTEND/signUp/signup.html");
+  location.replace("http://localhost:3000/signUp/signup.html");
 });

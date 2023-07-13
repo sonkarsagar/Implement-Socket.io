@@ -16,21 +16,24 @@
   <body>
     <nav class="navbar bg-transparent">
       <div class="container-fluid">
-        <a href=""> </a>
-        <h1>tacebook</h1>
+        <form class="d-flex" role="search">
+          <input class="form-control me-2" type="search" placeholder="Invite Link" aria-label="Search" id="inviteLink">
+          <button type="button" class="btn btn-info" id="invite">Enter</button>
+        </form>
+        <h1 style="padding-right: 250px;">tacebook</h1>
         <button type="button" class="btn btn-info" id="logOut">Log Out</button>
       </div>
     </nav>
 
     <div class="main-grp">
       <div class="grp-responsive">
-        <table class="table table-striped" id="">
+        <table class="table table-striped" id="myTable">
           <thead id="grpthead">
             <tr>
               <th>
                 <div class="input-group mb-3">
                   <input type="text" class="form-control" aria-label="Text input with dropdown button"
-                    placeholder="Search Group">
+                    placeholder="Search Group" id="myInput" onkeyup="myFunction()">
                   <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
                     aria-expanded="false"></button>
                   <ul class="dropdown-menu dropdown-menu-end" id="dropdown">

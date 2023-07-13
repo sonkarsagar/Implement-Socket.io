@@ -15,7 +15,7 @@ submit.addEventListener("click", async (e) => {
       password: password.value,
     });
     alert("Successfully Signed Up");
-    location.replace("http://localhost:5500/FRONTEND/logIn/login.html");
+    location.replace("http://localhost:3000/logIn/login.html");
   } catch (error) {
     console.log(error);
   }
@@ -23,5 +23,5 @@ submit.addEventListener("click", async (e) => {
 
 logIn.addEventListener("click", (e) => {
   e.preventDefault();
-  location.replace("http://localhost:5500/FRONTEND/logIn/login.html");
+  location.replace("http://localhost:3000/logIn/login.html");
 });

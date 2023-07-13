@@ -3,7 +3,7 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const path=require('path')
+const path = require('path')
 const jwt = require("jsonwebtoken");
 
 const User = require("./models/user");
@@ -69,29 +69,34 @@ app.get("/getUser/:UserId", authorization.authorize, (req, res, next) => {
     });
 });
 
-app.get(`/copyLink`, authorization.authorize, async (req,res)=>{
-  
-    Group.update({
-      UserId: req.user.id,
-      GroupId: req.query.grpId
-    })
-  
+app.get(`/copyLink`, authorization.authorize, async (req, res) => {
+  raw.execute(`SELECT * FROM groupusers
+  WHERE GroupId=${req.query.grpId} AND UserId=${req.user.id}`).then((result) => {
+    if (result[0]) {
+      GroupUser.create({
+        UserId: req.user.id,
+        GroupId: parseInt(req.query.grpId)
+      }).catch((err) => {
+        console.log(err);
+      });
+    } else {
+      res.status(401).send('Already a member.')
+
+    }
+  }).catch((err) => {
+    console.log(err);
+  });
+
 })
 
 app.post("/postChat", authorization.authorize, (req, res, next) => {
-  User.findOne({ where: { id: req.user.id } })
-    .then((result) => {
-      Chat.create({
-        chat: req.body.chat,
-        UserId: result.id,
-        chatgroupId: req.body.chatgroupid
-      })
-        .then((result) => {
-          res.status(201).json(result);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+  Chat.create({
+    chat: req.body.chat,
+    UserId: req.user.id,
+    chatgroupId: parseInt(req.body.chatgroupid)
+  })
+    .then((response) => {
+      res.status(201).json(response);
     })
     .catch((err) => {
       console.log(err);
@@ -107,15 +112,13 @@ app.get('/group/getGroupChat/:GroupId', (req, res) => {
 })
 
 app.get("/getChat/", (req, res, next) => {
-  console.log(req.query.MessageId);
   if (req.query.MessageId == 'undefined') {
     raw.execute(`SELECT *
                 FROM chats c
                 JOIN chatgroups cg
                 ON c.chatgroupId=cg.id`)
       .then((result) => {
-        console.log(result[0]);
-        // res.json(result[0])
+        res.json(result[0])
       }).catch((err) => {
         console.log(err);
       });
@@ -142,9 +145,9 @@ app.get("/getChat/", (req, res, next) => {
   }
 });
 
-app.get("/", (req, res, next) => {
-  res.send("<h1>Backend Is Working</h1>");
-});
+app.use((req, res) => {
+  res.sendFile(path.join(__dirname, `./FRONTEND/${req.url}`))
+})
 
 User.hasMany(Chat);
 Chat.belongsTo(User);
