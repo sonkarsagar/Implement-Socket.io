@@ -17,6 +17,7 @@ submit.addEventListener("click", async (e) => {
     alert("Successfully Signed Up");
     location.replace("http://localhost:3000/logIn/login.html");
   } catch (error) {
+    alert('User already exists. Please log in.')
     console.log(error);
   }
 });

@@ -72,7 +72,7 @@ app.get("/getUser/:UserId", authorization.authorize, (req, res, next) => {
 app.get(`/copyLink`, authorization.authorize, async (req, res) => {
   raw.execute(`SELECT * FROM groupusers
   WHERE GroupId=${req.query.grpId} AND UserId=${req.user.id}`).then((result) => {
-    if (result[0]) {
+    if (!result[0][0]) {
       GroupUser.create({
         UserId: req.user.id,
         GroupId: parseInt(req.query.grpId)
