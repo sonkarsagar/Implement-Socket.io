@@ -57,17 +57,21 @@ window.addEventListener("DOMContentLoaded", async (e) => {
   // },1000)
 });
 
+// style="overflow-y: visible;"
 async function renderChat(groupName, groupId) {
-  main_chat.innerHTML = `<div class="table-responsive">
+  main_chat.innerHTML = `<div class="table-responsive" style="overflow: visible;">
                       <table class="table table-striped" id="table">
                         <thead id="chatthead">
                           <tr>
-                            <th scope="col">${groupName} 
-                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                              aria-expanded="false" style="width: 35px; padding: 0"></button>
+                            <th scope="col">${groupName}
+                            <div class="btn-group dropend"> 
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width: 35px; padding-top: 0"></button>
                             <ul class="dropdown-menu dropdown-menu-end" id="dropdown2">
                               <li><a class="dropdown-item" href="#">Copy invite link</a></li>
+                              <li><a class="dropdown-item" href="#">Group info</a></li>
+                              <li><a class="dropdown-item" href="#">Delete group</a></li>
                             </ul>
+                            </div>
                             </th>                            
                           </tr>
                         </thead>
@@ -86,15 +90,22 @@ async function renderChat(groupName, groupId) {
   const chat = document.getElementById("chat");
   const send = document.getElementById("send");
   copyLink.addEventListener("click", (e) => {
-    let inputElement = document.createElement("input");
-    inputElement.setAttribute(
-      "value",
-      `http://localhost:3000/copyLink?grpname=${groupName}&grpId=${groupId}`
-    );
-    document.body.appendChild(inputElement);
-    inputElement.select();
-    document.execCommand("copy");
-    inputElement.parentNode.removeChild(inputElement);
+    if(e.target.textContent=='Copy invite link'){
+      let inputElement = document.createElement("input");
+      inputElement.setAttribute(
+        "value",
+        `http://localhost:3000/copyLink?grpname=${groupName}&grpId=${groupId}`
+      );
+      document.body.appendChild(inputElement);
+      inputElement.select();
+      document.execCommand("copy");
+      inputElement.parentNode.removeChild(inputElement);
+    }else if(e.target.textContent=='Group info'){
+      console.log('kuchAur');
+    }else{
+
+    }
+    
   });
 
   send.addEventListener("click", async (e) => {
