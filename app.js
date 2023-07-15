@@ -195,6 +195,7 @@ Group.belongsTo(User)
 Group.hasMany(Chat)
 Chat.belongsTo(Group)
 
+
 sequelize
   .sync()
   // .sync({force: true})
