@@ -53,7 +53,7 @@ app.get(`/removeMember/`,(req,res)=>{
 app.get('/group/getGroup', authorization.authorize, (req, res) => {
   raw.execute(`SELECT *
               FROM chatgroups cg
-              JOIN groupusers gu
+              JOIN GroupUsers gu
               ON cg.id=gu.GroupId
               WHERE gu.UserId=${req.user.id}`)
     .then((result) => {
