@@ -12,7 +12,7 @@ invitebtn.addEventListener("click", (e) => {
     .get(`${inviteLink.value}`, {
       headers: { Authorization: localStorage.getItem("token") },
     })
-    .then((result) => {})
+    .then((result) => { })
     .catch((err) => {
       alert("Already a user.");
     });
@@ -22,14 +22,16 @@ invitebtn.addEventListener("click", (e) => {
 crtGrp.addEventListener("click", (e) => {
   e.preventDefault();
   const grpName = prompt("Name your Group:", "New Group");
-  axios
-    .get(`http://localhost:3000/groupParams/${grpName}`, {
-      headers: { Authorization: localStorage.getItem("token") },
-    })
-    .then((result) => {})
-    .catch((err) => {
-      console.log(err);
-    });
+  if (grpName) {
+    axios
+      .get(`http://localhost:3000/groupParams/${grpName}`, {
+        headers: { Authorization: localStorage.getItem("token") },
+      })
+      .then((result) => { })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
   location.reload();
 });
 
@@ -47,7 +49,6 @@ window.addEventListener("DOMContentLoaded", async (e) => {
   }
   // setInterval(async ()=>{
   try {
-    // renderChat();
     renderGroup();
   } catch (err) {
     // localStorage.removeItem("token");
@@ -57,9 +58,8 @@ window.addEventListener("DOMContentLoaded", async (e) => {
   // },1000)
 });
 
-// style="overflow-y: visible;"
 async function renderChat(groupName, groupId) {
-  main_chat.innerHTML = `<div class="table-responsive" style="overflow: visible;">
+  main_chat.innerHTML = `<div class="table-responsive" style="overflow-x: hidden;">
                       <table class="table table-striped" id="table">
                         <thead id="chatthead">
                           <tr>
@@ -68,7 +68,7 @@ async function renderChat(groupName, groupId) {
                             <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width: 35px; padding-top: 0"></button>
                             <ul class="dropdown-menu dropdown-menu-end" id="dropdown2">
                               <li><a class="dropdown-item" href="#">Copy invite link</a></li>
-                              <li><a class="dropdown-item" href="#">Group info</a></li>
+                              <li><a class="dropdown-item" href="#">Group members</a></li>
                               <li><a class="dropdown-item" href="#">Delete group</a></li>
                             </ul>
                             </div>
@@ -90,7 +90,7 @@ async function renderChat(groupName, groupId) {
   const chat = document.getElementById("chat");
   const send = document.getElementById("send");
   copyLink.addEventListener("click", (e) => {
-    if(e.target.textContent=='Copy invite link'){
+    if (e.target.textContent == "Copy invite link") {
       let inputElement = document.createElement("input");
       inputElement.setAttribute(
         "value",
@@ -100,12 +100,87 @@ async function renderChat(groupName, groupId) {
       inputElement.select();
       document.execCommand("copy");
       inputElement.parentNode.removeChild(inputElement);
-    }else if(e.target.textContent=='Group info'){
-      console.log('kuchAur');
-    }else{
+    } else if (e.target.textContent === "Group members") {
+      axios
+        .get(`http://localhost:3000/groupInfo/${groupId}`, {
+          headers: { Authorization: localStorage.getItem("token") },
+        })
+        .then((result) => {
+          chattbody.innerHTML = ``;
+          result.data.slice(0,result.data.length-1).forEach(async (element) => {
+            const row = document.createElement("tr");
+            const data = document.createElement("td");
+            const User = await axios.get(
+              `http://localhost:3000/getUser/${element.member}`,
+              { headers: { Authorization: localStorage.getItem("token") } }
+            );
+            if (result.data.slice(-1)[0]===true){
 
+              if (element.member==element.admin) {
+                data.appendChild(
+                  document.createTextNode(
+                    `${User.data.first} ${User.data.sur} (ADMIN)`
+                  )
+                );
+                row.appendChild(data);
+                row.setAttribute('id', element.member)
+                chattbody.appendChild(row);
+              } else {
+                data.appendChild(
+                  document.createTextNode(`${User.data.first} ${User.data.sur}`)
+                );
+                const deleteb = document.createElement("button");
+                deleteb.setAttribute("class", "btn btn-danger btn-sm");
+                deleteb.setAttribute("type", "button");
+                deleteb.appendChild(document.createTextNode("Remove"));
+                deleteb.addEventListener("click", (e) => {
+                  e.preventDefault();
+                  axios.get(`http://localhost:3000/removeMember?memberId=${e.target.parentElement.id}&groupId=${groupId}`,{ headers: { Authorization: localStorage.getItem("token") } })
+                  chattbody.removeChild(e.target.parentElement)
+                });
+                row.appendChild(data);
+                row.appendChild(deleteb);
+                row.setAttribute('id', element.member)
+                chattbody.appendChild(row);
+              }
+
+            }else{
+
+              if (element.member==element.admin) {
+                data.appendChild(
+                  document.createTextNode(
+                    `${User.data.first} ${User.data.sur} (ADMIN)`
+                  )
+                );
+                row.appendChild(data);
+                chattbody.appendChild(row);
+              } else {
+                data.appendChild(
+                  document.createTextNode(`${User.data.first} ${User.data.sur}`)
+                );
+                row.appendChild(data);
+                chattbody.appendChild(row);
+            }
+
+          }            
+          });
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else {
+      axios
+        .get(`http://localhost:3000/deleteGroup/${groupId}`, {
+          headers: { Authorization: localStorage.getItem("token") },
+        })
+        .then((result) => {
+          location.reload();
+        })
+        .catch((err) => {
+          alert("Sorry. You are not the admin.");
+          console.log(err);
+        });
     }
-    
   });
 
   send.addEventListener("click", async (e) => {
@@ -192,7 +267,10 @@ async function renderGroup() {
           if (selectedRow) {
             selectedRow.removeAttribute("style");
           }
-          e.target.setAttribute("style", "background-color: #0095dd; color: white;");
+          e.target.setAttribute(
+            "style",
+            "background-color: #0095dd; color: white;"
+          );
           selectedRow = e.target;
           axios
             .get(

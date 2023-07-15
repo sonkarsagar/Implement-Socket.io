@@ -46,6 +46,10 @@ app.get('/groupParams/:groupName', authorization.authorize, (req, res, next) => 
   });
 })
 
+app.get(`/removeMember/`,(req,res)=>{  
+  GroupUser.destroy({where:{UserId: req.query.memberId, GroupId: req.query.groupId}})
+})
+
 app.get('/group/getGroup', authorization.authorize, (req, res) => {
   raw.execute(`SELECT *
               FROM chatgroups cg
@@ -59,7 +63,40 @@ app.get('/group/getGroup', authorization.authorize, (req, res) => {
     });
 })
 
-app.get("/getUser/:UserId", authorization.authorize, (req, res, next) => {
+app.get(`/groupInfo/:groupId`, authorization.authorize, (req,res)=>{
+  raw.execute(`SELECT cg.id AS groupid, cg.UserId AS admin, gu.UserId AS member
+    FROM chatgroups cg
+    JOIN groupusers gu
+    ON cg.id=gu.GroupId
+    WHERE cg.id=${req.params.groupId}`).then((result) => {
+      if(req.user.id==result[0][0].admin){
+        result[0].push(true)
+      }else{
+        result[0].push(false)
+      }
+      res.send(result[0])
+      
+    }).catch((err) => {
+      console.log(err);
+    });
+})
+
+app.get(`/deleteGroup/:groupId`, authorization.authorize, (req,res)=>{
+  Group.findByPk(req.params.groupId).then((result) => {
+    if(result.UserId==req.user.id){
+      Chat.destroy({where:{chatgroupId: req.params.groupId}})
+      GroupUser.destroy({where:{GroupId: req.params.groupId}})
+      Group.destroy({where: {id: req.params.groupId}})
+      res.status(201).send('Group Deleted')
+    }else{
+      res.status(401).send('Not the admin.')
+    }
+  }).catch((err) => {
+    console.log(err);
+  });
+})
+
+app.get("/getUser/:UserId", authorization.authorize, (req, res) => {
   User.findByPk(req.params.UserId)
     .then((result) => {
       res.json(result);
