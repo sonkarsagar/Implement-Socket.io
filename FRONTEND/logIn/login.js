@@ -7,14 +7,14 @@ const create = document.getElementById("create");
 submit.addEventListener("click", async (e) => {
   e.preventDefault();
   try {
-    const result = await axios.post("http://100.26.98.177:3000/login", {
+    const result = await axios.post("http://100.26.98.177/login", {
       email: email.value,
       password: password.value,
     });
     localStorage.setItem("token", result.data.token);
     if (result.data.value) {
       alert("Successfully Logged In");
-      location.replace("http://100.26.98.177:3000/loggedIn/loggedIn.html");
+      location.replace("http://100.26.98.177/loggedIn/loggedIn.html");
     } else {
       alert("Incorrect Email/Password");
     }
@@ -26,5 +26,5 @@ submit.addEventListener("click", async (e) => {
 
 create.addEventListener("click", (e) => {
   e.preventDefault();
-  location.replace("http://100.26.98.177:3000/signUp/signup.html");
+  location.replace("http://100.26.98.177/signUp/signup.html");
 });
