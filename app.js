@@ -66,7 +66,7 @@ app.get('/group/getGroup', authorization.authorize, (req, res) => {
 app.get(`/groupInfo/:groupId`, authorization.authorize, (req,res)=>{
   raw.execute(`SELECT cg.id AS groupid, cg.UserId AS admin, gu.UserId AS member
     FROM chatgroups cg
-    JOIN groupusers gu
+    JOIN GroupUsers gu
     ON cg.id=gu.GroupId
     WHERE cg.id=${req.params.groupId}`).then((result) => {
       if(req.user.id==result[0][0].admin){
@@ -107,7 +107,7 @@ app.get("/getUser/:UserId", authorization.authorize, (req, res) => {
 });
 
 app.get(`/copyLink`, authorization.authorize, async (req, res) => {
-  raw.execute(`SELECT * FROM groupusers
+  raw.execute(`SELECT * FROM GroupUsers
   WHERE GroupId=${req.query.grpId} AND UserId=${req.user.id}`).then((result) => {
     if (!result[0][0]) {
       GroupUser.create({
@@ -151,7 +151,7 @@ app.get('/group/getGroupChat/:GroupId', (req, res) => {
 app.get("/getChat/", (req, res, next) => {
   if (req.query.MessageId == 'undefined') {
     raw.execute(`SELECT *
-                FROM chats c
+                FROM Chats c
                 JOIN chatgroups cg
                 ON c.chatgroupId=cg.id`)
       .then((result) => {
