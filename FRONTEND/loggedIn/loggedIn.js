@@ -187,7 +187,7 @@ async function renderChat(groupName, groupId) {
 
   localStorage.setItem("message", JSON.stringify([]));
   try {
-    const chat = await axios.get(`http://100.26.98.177/getChat/?MessageId=${JSON.parse(localStorage.getItem("message"))[-1]}&GroupId=${e.target.parentElement.id}`,
+    const chat = await axios.get(`http://100.26.98.177/getChat/?MessageId=${JSON.parse(localStorage.getItem("message"))[-1]}&GroupId=${groupId}`,
       { headers: { Authorization: localStorage.getItem("token") } }
     );
     console.log(chat);
