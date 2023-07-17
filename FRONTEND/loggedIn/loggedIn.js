@@ -231,20 +231,20 @@ async function renderGroup() {
         const data = document.createElement("td");
         data.appendChild(document.createTextNode(`${element.name}`));
         row.appendChild(data);
-        row.addEventListener("click", (e) => {
+        row.addEventListener("click", async (e) => {
           if (selectedRow) {
             selectedRow.removeAttribute("style");
           }
           e.target.setAttribute("style", "background-color: #0095dd; color: white;");
           selectedRow = e.target;
-          axios
-            .get(
-              `http://100.26.98.177/group/getGroupChat/${e.target.parentElement.id}`,
-              {
-                headers: { Authorization: localStorage.getItem("token") },
-              }
-            )
-            .then(async (result) => {
+          // axios
+          //   .get(
+          //     `http://100.26.98.177/group/getGroupChat/${e.target.parentElement.id}`,
+          //     {
+          //       headers: { Authorization: localStorage.getItem("token") },
+          //     }
+          //   )
+          //   .then(async (result) => {
               // result.data.forEach(async (element) => {
                 localStorage.setItem("message", JSON.stringify([]));
                 try {
@@ -298,10 +298,10 @@ async function renderGroup() {
                 //   console.log(err);
                 // }
               // });
-            })
-            .catch((err) => {
-              console.log(err);
-            });
+            // })
+            // .catch((err) => {
+            //   console.log(err);
+            // });
           renderChat(row.textContent, e.target.parentElement.id);
           chattbody.setAttribute("style", '"overflow-x: hidden;"');
         });
