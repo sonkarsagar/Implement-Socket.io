@@ -247,6 +247,7 @@ async function renderChat(groupName, groupId) {
       } catch (err) {
         console.log(err);
       }
+      chat.value=''
     } catch (error) {
       console.log(error);
     }
