@@ -150,14 +150,6 @@ app.get("/getChat/", (req, res, next) => {
       }).catch((err) => {
         console.log(err);
       });
-
-    // Chat.findAll().then((result) => {
-    //   if (result) {
-    //     res.json(result.slice(-10))
-    //   }
-    // }).catch((err) => {
-    //   console.log(err);
-    // });
   } else {
     Chat.findAll({where:{chatgroupId: req.query.GroupId}}).then((result) => {
       if (result) {
@@ -172,13 +164,14 @@ app.get("/getChat/", (req, res, next) => {
     });
   }
 });
-app.get('/group/getGroupChat/:GroupId', (req, res) => {
-  Chat.findAll({ where: { chatgroupId: req.params.GroupId } }).then((result) => {
-    res.json(result)
-  }).catch((err) => {
-    console.log(err);
-  });
-})
+
+// app.get('/group/getGroupChat/:GroupId', (req, res) => {
+//   Chat.findAll({ where: { chatgroupId: req.params.GroupId } }).then((result) => {
+//     res.json(result)
+//   }).catch((err) => {
+//     console.log(err);
+//   });
+// })
 
 app.use((req, res) => {
   res.sendFile(path.join(__dirname, `./FRONTEND/${req.url}`))

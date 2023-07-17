@@ -184,13 +184,11 @@ async function renderChat(groupName, groupId) {
     }
   });
 
-
   localStorage.setItem("message", JSON.stringify([]));
   try {
     const chat = await axios.get(`http://100.26.98.177/getChat/?MessageId=${JSON.parse(localStorage.getItem("message"))[-1]}&GroupId=${groupId}`,
       { headers: { Authorization: localStorage.getItem("token") } }
     );
-    console.log(chat);
     if (chat) {
       message = JSON.parse(localStorage.getItem("message"));
       message = message.concat(chat.data);
@@ -274,38 +272,6 @@ async function renderGroup() {
           }
           e.target.setAttribute("style", "background-color: #0095dd; color: white;");
           selectedRow = e.target;
-          // axios
-          //   .get(
-          //     `http://100.26.98.177/group/getGroupChat/${e.target.parentElement.id}`,
-          //     {
-          //       headers: { Authorization: localStorage.getItem("token") },
-          //     }
-          //   )
-          //   .then(async (result) => {
-          // result.data.forEach(async (element) => {
-          // try {
-          //   const row = document.createElement("tr");
-          //   const data = document.createElement("td");
-          //   const User = await axios.get(
-          //     `http://100.26.98.177/getUser/${element.UserId}`,
-          //     {
-          //       headers: { Authorization: localStorage.getItem("token") },
-          //     }
-          //   );
-          //   data.appendChild(document.createTextNode(
-          //     `${User.data.first} ${User.data.sur}: ` + element.chat
-          //   )
-          //   );
-          //   row.appendChild(data);
-          //   chattbody.appendChild(row);
-          // } catch (err) {
-          //   console.log(err);
-          // }
-          // });
-          // })
-          // .catch((err) => {
-          //   console.log(err);
-          // });
           renderChat(row.textContent, e.target.parentElement.id);
           chattbody.setAttribute("style", '"overflow-x: hidden;"');
         });
