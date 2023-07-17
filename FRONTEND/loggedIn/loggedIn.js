@@ -183,6 +183,42 @@ async function renderChat(groupName, groupId) {
         });
     }
   });
+
+
+  localStorage.setItem("message", JSON.stringify([]));
+  try {
+    const chat = await axios.get(`http://100.26.98.177/getChat/?MessageId=${JSON.parse(localStorage.getItem("message"))[-1]}&GroupId=${e.target.parentElement.id}`,
+      { headers: { Authorization: localStorage.getItem("token") } }
+    );
+    console.log(chat);
+    if (chat) {
+      message = JSON.parse(localStorage.getItem("message"));
+      message = message.concat(chat.data);
+      message = message.slice(-10);
+      localStorage.setItem("message", JSON.stringify(message));
+    }
+    array = JSON.parse(localStorage.getItem("message"));
+    for (element of array) {
+      const row = document.createElement("tr");
+      const data = document.createElement("td");
+      try {
+        const User = await axios.get(`http://100.26.98.177/getUser/${element.UserId}`,
+          { headers: { Authorization: localStorage.getItem("token") } }
+        );
+        data.appendChild(
+          document.createTextNode(`${User.data.first} ${User.data.sur}: ` + element.chat)
+        );
+        row.appendChild(data);
+        chattbody.appendChild(row);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  } catch (err) {
+    console.log(err);
+  }
+
+
   send.addEventListener("click", async (e) => {
     e.preventDefault();
     try {
@@ -245,63 +281,30 @@ async function renderGroup() {
           //     }
           //   )
           //   .then(async (result) => {
-              // result.data.forEach(async (element) => {
-                localStorage.setItem("message", JSON.stringify([]));
-                try {
-                  const chat = await axios.get(`http://100.26.98.177/getChat/?MessageId=${JSON.parse(localStorage.getItem("message"))[-1]}&GroupId=${e.target.parentElement.id}`,
-                    { headers: { Authorization: localStorage.getItem("token") } }
-                  );
-                  console.log(chat);
-                  if (chat) {
-                    message = JSON.parse(localStorage.getItem("message"));
-                    message = message.concat(chat.data);
-                    message = message.slice(-10);
-                    localStorage.setItem("message", JSON.stringify(message));
-                  }
-                  array = JSON.parse(localStorage.getItem("message"));
-                  for (element of array) {
-                    const row = document.createElement("tr");
-                    const data = document.createElement("td");
-                    try {
-                      const User = await axios.get(`http://100.26.98.177/getUser/${element.UserId}`,
-                        { headers: { Authorization: localStorage.getItem("token") } }
-                      );
-                      data.appendChild(
-                        document.createTextNode(`${User.data.first} ${User.data.sur}: ` + element.chat)
-                      );
-                      row.appendChild(data);
-                      chattbody.appendChild(row);
-                    } catch (error) {
-                      console.log(error);
-                    }
-                  }
-                } catch (err) {
-                  console.log(err);
-                }
-
-                // try {
-                //   const row = document.createElement("tr");
-                //   const data = document.createElement("td");
-                //   const User = await axios.get(
-                //     `http://100.26.98.177/getUser/${element.UserId}`,
-                //     {
-                //       headers: { Authorization: localStorage.getItem("token") },
-                //     }
-                //   );
-                //   data.appendChild(document.createTextNode(
-                //     `${User.data.first} ${User.data.sur}: ` + element.chat
-                //   )
-                //   );
-                //   row.appendChild(data);
-                //   chattbody.appendChild(row);
-                // } catch (err) {
-                //   console.log(err);
-                // }
-              // });
-            // })
-            // .catch((err) => {
-            //   console.log(err);
-            // });
+          // result.data.forEach(async (element) => {
+          // try {
+          //   const row = document.createElement("tr");
+          //   const data = document.createElement("td");
+          //   const User = await axios.get(
+          //     `http://100.26.98.177/getUser/${element.UserId}`,
+          //     {
+          //       headers: { Authorization: localStorage.getItem("token") },
+          //     }
+          //   );
+          //   data.appendChild(document.createTextNode(
+          //     `${User.data.first} ${User.data.sur}: ` + element.chat
+          //   )
+          //   );
+          //   row.appendChild(data);
+          //   chattbody.appendChild(row);
+          // } catch (err) {
+          //   console.log(err);
+          // }
+          // });
+          // })
+          // .catch((err) => {
+          //   console.log(err);
+          // });
           renderChat(row.textContent, e.target.parentElement.id);
           chattbody.setAttribute("style", '"overflow-x: hidden;"');
         });
