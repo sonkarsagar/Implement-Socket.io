@@ -248,9 +248,10 @@ async function renderGroup() {
               // result.data.forEach(async (element) => {
                 localStorage.setItem("message", JSON.stringify([]));
                 try {
-                  const chat = await axios.get(`http://100.26.98.177/getChat/?MessageId=${JSON.parse(localStorage.getItem("message"))[-1]}&chatGroup=${groupName}`,
+                  const chat = await axios.get(`http://100.26.98.177/getChat/?MessageId=${JSON.parse(localStorage.getItem("message"))[-1]}&GroupId=${e.target.parentElement.id}`,
                     { headers: { Authorization: localStorage.getItem("token") } }
                   );
+                  console.log(chat);
                   if (chat) {
                     message = JSON.parse(localStorage.getItem("message"));
                     message = message.concat(chat.data);
