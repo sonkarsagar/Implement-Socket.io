@@ -151,13 +151,13 @@ app.get("/getChat/", (req, res, next) => {
         console.log(err);
       });
 
-    Chat.findAll().then((result) => {
-      if (result) {
-        res.json(result.slice(-10))
-      }
-    }).catch((err) => {
-      console.log(err);
-    });
+    // Chat.findAll().then((result) => {
+    //   if (result) {
+    //     res.json(result.slice(-10))
+    //   }
+    // }).catch((err) => {
+    //   console.log(err);
+    // });
   } else {
     Chat.findAll({where:{chatgroupId: req.query.GroupId}}).then((result) => {
       if (result) {
