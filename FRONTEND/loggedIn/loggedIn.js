@@ -8,14 +8,11 @@ const invitebtn = document.getElementById("invite");
 
 invitebtn.addEventListener("click", (e) => {
   e.preventDefault();
-  axios
-    .get(`${inviteLink.value}`, {
-      headers: { Authorization: localStorage.getItem("token") },
-    })
-    .then((result) => { })
-    .catch((err) => {
-      alert("Already a user.");
-    });
+  axios.get(`${inviteLink.value}`, { headers: { Authorization: localStorage.getItem("token") }, }).then((result) => {
+
+  }).catch((err) => {
+    alert("Already a user.");
+  });
   location.reload();
 });
 
@@ -23,14 +20,11 @@ crtGrp.addEventListener("click", (e) => {
   e.preventDefault();
   const grpName = prompt("Name your Group:", "New Group");
   if (grpName) {
-    axios
-      .get(`http://100.26.98.177/groupParams/${grpName}`, {
-        headers: { Authorization: localStorage.getItem("token") },
-      })
-      .then((result) => { })
-      .catch((err) => {
-        console.log(err);
-      });
+    axios.get(`http://100.26.98.177/groupParams/${grpName}`, { headers: { Authorization: localStorage.getItem("token") }, }).then((result) => {
+
+    }).catch((err) => {
+      console.log(err);
+    });
   }
   location.reload();
 });
@@ -47,15 +41,13 @@ window.addEventListener("DOMContentLoaded", async (e) => {
   if (!localStorage.getItem("token")) {
     location.replace("http://100.26.98.177/logIn/login.html");
   }
-  // setInterval(async ()=>{
   try {
     renderGroup();
   } catch (err) {
-    // localStorage.removeItem("token");
-    // localStorage.removeItem("message");
-    // location.replace("http://100.26.98.177/logIn/login.html");
+    localStorage.removeItem("token");
+    localStorage.removeItem("message");
+    location.replace("http://100.26.98.177/logIn/login.html");
   }
-  // },1000)
 });
 
 async function renderChat(groupName, groupId) {
@@ -107,63 +99,72 @@ async function renderChat(groupName, groupId) {
         })
         .then((result) => {
           chattbody.innerHTML = ``;
-          result.data.slice(0,result.data.length-1).forEach(async (element) => {
-            const row = document.createElement("tr");
-            const data = document.createElement("td");
-            const User = await axios.get(
-              `http://100.26.98.177/getUser/${element.member}`,
-              { headers: { Authorization: localStorage.getItem("token") } }
-            );
-            if (result.data.slice(-1)[0]===true){
-
-              if (element.member==element.admin) {
-                data.appendChild(
-                  document.createTextNode(
-                    `${User.data.first} ${User.data.sur} (ADMIN)`
-                  )
-                );
-                row.appendChild(data);
-                row.setAttribute('id', element.member)
-                chattbody.appendChild(row);
+          result.data
+            .slice(0, result.data.length - 1)
+            .forEach(async (element) => {
+              const row = document.createElement("tr");
+              const data = document.createElement("td");
+              const User = await axios.get(
+                `http://100.26.98.177/getUser/${element.member}`,
+                { headers: { Authorization: localStorage.getItem("token") } }
+              );
+              if (result.data.slice(-1)[0] === true) {
+                if (element.member == element.admin) {
+                  data.appendChild(
+                    document.createTextNode(
+                      `${User.data.first} ${User.data.sur} (ADMIN)`
+                    )
+                  );
+                  row.appendChild(data);
+                  row.setAttribute("id", element.member);
+                  chattbody.appendChild(row);
+                } else {
+                  data.appendChild(
+                    document.createTextNode(
+                      `${User.data.first} ${User.data.sur}`
+                    )
+                  );
+                  const deleteb = document.createElement("button");
+                  deleteb.setAttribute("class", "btn btn-danger btn-sm");
+                  deleteb.setAttribute("type", "button");
+                  deleteb.appendChild(document.createTextNode("Remove"));
+                  deleteb.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    axios.get(
+                      `http://100.26.98.177/removeMember?memberId=${e.target.parentElement.id}&groupId=${groupId}`,
+                      {
+                        headers: {
+                          Authorization: localStorage.getItem("token"),
+                        },
+                      }
+                    );
+                    chattbody.removeChild(e.target.parentElement);
+                  });
+                  row.appendChild(data);
+                  row.appendChild(deleteb);
+                  row.setAttribute("id", element.member);
+                  chattbody.appendChild(row);
+                }
               } else {
-                data.appendChild(
-                  document.createTextNode(`${User.data.first} ${User.data.sur}`)
-                );
-                const deleteb = document.createElement("button");
-                deleteb.setAttribute("class", "btn btn-danger btn-sm");
-                deleteb.setAttribute("type", "button");
-                deleteb.appendChild(document.createTextNode("Remove"));
-                deleteb.addEventListener("click", (e) => {
-                  e.preventDefault();
-                  axios.get(`http://100.26.98.177/removeMember?memberId=${e.target.parentElement.id}&groupId=${groupId}`,{ headers: { Authorization: localStorage.getItem("token") } })
-                  chattbody.removeChild(e.target.parentElement)
-                });
-                row.appendChild(data);
-                row.appendChild(deleteb);
-                row.setAttribute('id', element.member)
-                chattbody.appendChild(row);
+                if (element.member == element.admin) {
+                  data.appendChild(
+                    document.createTextNode(
+                      `${User.data.first} ${User.data.sur} (ADMIN)`
+                    )
+                  );
+                  row.appendChild(data);
+                  chattbody.appendChild(row);
+                } else {
+                  data.appendChild(
+                    document.createTextNode(
+                      `${User.data.first} ${User.data.sur}`
+                    )
+                  );
+                  row.appendChild(data);
+                  chattbody.appendChild(row);
+                }
               }
-
-            }else{
-
-              if (element.member==element.admin) {
-                data.appendChild(
-                  document.createTextNode(
-                    `${User.data.first} ${User.data.sur} (ADMIN)`
-                  )
-                );
-                row.appendChild(data);
-                chattbody.appendChild(row);
-              } else {
-                data.appendChild(
-                  document.createTextNode(`${User.data.first} ${User.data.sur}`)
-                );
-                row.appendChild(data);
-                chattbody.appendChild(row);
-            }
-
-          }            
-          });
+            });
         })
         .catch((err) => {
           console.log(err);
@@ -182,7 +183,6 @@ async function renderChat(groupName, groupId) {
         });
     }
   });
-
   send.addEventListener("click", async (e) => {
     e.preventDefault();
     try {
@@ -215,39 +215,39 @@ async function renderChat(groupName, groupId) {
       console.log(error);
     }
   });
-  // localStorage.setItem("message", JSON.stringify([]));
-  // try {
-  //   const chat = await axios.get(`http://100.26.98.177/getChat/?MessageId=${JSON.parse(localStorage.getItem("message"))[-1]}&chatGroup=${groupName}`,
-  //     { headers: { Authorization: localStorage.getItem("token") } }
-  //   );
-  //   if (chat) {
-  //     message = JSON.parse(localStorage.getItem("message"));
-  //     message = message.concat(chat.data);
-  //     message = message.slice(-10);
-  //     localStorage.setItem("message", JSON.stringify(message));
-  //   }
-  //   array = JSON.parse(localStorage.getItem("message"));
-  //   for (element of array) {
-  //     const row = document.createElement("tr");
-  //     const data = document.createElement("td");
-  //     try {
-  //       const User = await axios.get(`http://100.26.98.177/getUser/${element.UserId}`,
-  //         { headers: { Authorization: localStorage.getItem("token") } }
-  //       );
-  //       data.appendChild(
-  //         document.createTextNode(
-  //           `${User.data.first} ${User.data.sur}: ` + element.chat
-  //         )
-  //       );
-  //       row.appendChild(data);
-  //       chattbody.appendChild(row);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   }
-  // }catch (err) {
-  //   console.log(err);
-  // }
+  localStorage.setItem("message", JSON.stringify([]));
+  try {
+    const chat = await axios.get(`http://100.26.98.177/getChat/?MessageId=${JSON.parse(localStorage.getItem("message"))[-1]}&chatGroup=${groupName}`,
+      { headers: { Authorization: localStorage.getItem("token") } }
+    );
+    if (chat) {
+      message = JSON.parse(localStorage.getItem("message"));
+      message = message.concat(chat.data);
+      message = message.slice(-10);
+      localStorage.setItem("message", JSON.stringify(message));
+    }
+    array = JSON.parse(localStorage.getItem("message"));
+    for (element of array) {
+      const row = document.createElement("tr");
+      const data = document.createElement("td");
+      try {
+        const User = await axios.get(`http://100.26.98.177/getUser/${element.UserId}`,
+          { headers: { Authorization: localStorage.getItem("token") } }
+        );
+        data.appendChild(
+          document.createTextNode(
+            `${User.data.first} ${User.data.sur}: ` + element.chat
+          )
+        );
+        row.appendChild(data);
+        chattbody.appendChild(row);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }catch (err) {
+    console.log(err);
+  }
 }
 
 let selectedRow = null;
@@ -290,10 +290,9 @@ async function renderGroup() {
                       headers: { Authorization: localStorage.getItem("token") },
                     }
                   );
-                  data.appendChild(
-                    document.createTextNode(
-                      `${User.data.first} ${User.data.sur}: ` + element.chat
-                    )
+                  data.appendChild(document.createTextNode(
+                    `${User.data.first} ${User.data.sur}: ` + element.chat
+                  )
                   );
                   row.appendChild(data);
                   chattbody.appendChild(row);

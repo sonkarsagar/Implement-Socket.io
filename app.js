@@ -140,21 +140,14 @@ app.post("/postChat", authorization.authorize, (req, res, next) => {
     });
 });
 
-app.get('/group/getGroupChat/:GroupId', (req, res) => {
-  Chat.findAll({ where: { chatgroupId: req.params.GroupId } }).then((result) => {
-    res.json(result)
-  }).catch((err) => {
-    console.log(err);
-  });
-})
 
 app.get("/getChat/", (req, res, next) => {
   if (req.query.MessageId == 'undefined') {
     raw.execute(`SELECT *
-                FROM Chats c
-                JOIN chatgroups cg
-                ON c.chatgroupId=cg.id`)
-      .then((result) => {
+    FROM Chats c
+    JOIN chatgroups cg
+    ON c.chatgroupId=cg.id`)
+    .then((result) => {
         res.json(result[0])
       }).catch((err) => {
         console.log(err);
@@ -181,6 +174,13 @@ app.get("/getChat/", (req, res, next) => {
     });
   }
 });
+app.get('/group/getGroupChat/:GroupId', (req, res) => {
+  Chat.findAll({ where: { chatgroupId: req.params.GroupId } }).then((result) => {
+    res.json(result)
+  }).catch((err) => {
+    console.log(err);
+  });
+})
 
 app.use((req, res) => {
   res.sendFile(path.join(__dirname, `./FRONTEND/${req.url}`))
