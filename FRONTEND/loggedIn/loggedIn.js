@@ -215,39 +215,7 @@ async function renderChat(groupName, groupId) {
       console.log(error);
     }
   });
-  localStorage.setItem("message", JSON.stringify([]));
-  try {
-    const chat = await axios.get(`http://100.26.98.177/getChat/?MessageId=${JSON.parse(localStorage.getItem("message"))[-1]}&chatGroup=${groupName}`,
-      { headers: { Authorization: localStorage.getItem("token") } }
-    );
-    if (chat) {
-      message = JSON.parse(localStorage.getItem("message"));
-      message = message.concat(chat.data);
-      message = message.slice(-10);
-      localStorage.setItem("message", JSON.stringify(message));
-    }
-    array = JSON.parse(localStorage.getItem("message"));
-    for (element of array) {
-      const row = document.createElement("tr");
-      const data = document.createElement("td");
-      try {
-        const User = await axios.get(`http://100.26.98.177/getUser/${element.UserId}`,
-          { headers: { Authorization: localStorage.getItem("token") } }
-        );
-        data.appendChild(
-          document.createTextNode(
-            `${User.data.first} ${User.data.sur}: ` + element.chat
-          )
-        );
-        row.appendChild(data);
-        chattbody.appendChild(row);
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  }catch (err) {
-    console.log(err);
-  }
+
 }
 
 let selectedRow = null;
@@ -267,10 +235,7 @@ async function renderGroup() {
           if (selectedRow) {
             selectedRow.removeAttribute("style");
           }
-          e.target.setAttribute(
-            "style",
-            "background-color: #0095dd; color: white;"
-          );
+          e.target.setAttribute("style", "background-color: #0095dd; color: white;");
           selectedRow = e.target;
           axios
             .get(
@@ -279,27 +244,59 @@ async function renderGroup() {
                 headers: { Authorization: localStorage.getItem("token") },
               }
             )
-            .then((result) => {
-              result.data.forEach(async (element) => {
+            .then(async (result) => {
+              // result.data.forEach(async (element) => {
+                localStorage.setItem("message", JSON.stringify([]));
                 try {
-                  const row = document.createElement("tr");
-                  const data = document.createElement("td");
-                  const User = await axios.get(
-                    `http://100.26.98.177/getUser/${element.UserId}`,
-                    {
-                      headers: { Authorization: localStorage.getItem("token") },
+                  const chat = await axios.get(`http://100.26.98.177/getChat/?MessageId=${JSON.parse(localStorage.getItem("message"))[-1]}&chatGroup=${groupName}`,
+                    { headers: { Authorization: localStorage.getItem("token") } }
+                  );
+                  if (chat) {
+                    message = JSON.parse(localStorage.getItem("message"));
+                    message = message.concat(chat.data);
+                    message = message.slice(-10);
+                    localStorage.setItem("message", JSON.stringify(message));
+                  }
+                  array = JSON.parse(localStorage.getItem("message"));
+                  for (element of array) {
+                    const row = document.createElement("tr");
+                    const data = document.createElement("td");
+                    try {
+                      const User = await axios.get(`http://100.26.98.177/getUser/${element.UserId}`,
+                        { headers: { Authorization: localStorage.getItem("token") } }
+                      );
+                      data.appendChild(
+                        document.createTextNode(`${User.data.first} ${User.data.sur}: ` + element.chat)
+                      );
+                      row.appendChild(data);
+                      chattbody.appendChild(row);
+                    } catch (error) {
+                      console.log(error);
                     }
-                  );
-                  data.appendChild(document.createTextNode(
-                    `${User.data.first} ${User.data.sur}: ` + element.chat
-                  )
-                  );
-                  row.appendChild(data);
-                  chattbody.appendChild(row);
+                  }
                 } catch (err) {
                   console.log(err);
                 }
-              });
+
+                // try {
+                //   const row = document.createElement("tr");
+                //   const data = document.createElement("td");
+                //   const User = await axios.get(
+                //     `http://100.26.98.177/getUser/${element.UserId}`,
+                //     {
+                //       headers: { Authorization: localStorage.getItem("token") },
+                //     }
+                //   );
+                //   data.appendChild(document.createTextNode(
+                //     `${User.data.first} ${User.data.sur}: ` + element.chat
+                //   )
+                //   );
+                //   row.appendChild(data);
+                //   chattbody.appendChild(row);
+                // } catch (err) {
+                //   console.log(err);
+                // }
+              // });
             })
             .catch((err) => {
               console.log(err);
