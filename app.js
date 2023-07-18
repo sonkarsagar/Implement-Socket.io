@@ -4,13 +4,12 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const path = require('path')
 const jwt = require("jsonwebtoken");
-const server=require('http').createServer(app)
-const io=require('socket.io')(server)
+const server = require('http').createServer(app)
+const io = require('socket.io')(server)
 
-io.on("connection", (socket)=>{
-  console.log(socket.id);
-  socket.on('batman', (message)=>{
-    console.log(message);
+io.on("connection", (socket) => {
+  socket.on('batman', (message) => {
+    socket.broadcast.emit('renderChat', 'renderchat')
   })
 })
 
@@ -54,8 +53,8 @@ app.get('/groupParams/:groupName', authorization.authorize, (req, res, next) => 
   });
 })
 
-app.get(`/removeMember/`,(req,res)=>{  
-  GroupUser.destroy({where:{UserId: req.query.memberId, GroupId: req.query.groupId}})
+app.get(`/removeMember/`, (req, res) => {
+  GroupUser.destroy({ where: { UserId: req.query.memberId, GroupId: req.query.groupId } })
 })
 
 app.get('/group/getGroup', authorization.authorize, (req, res) => {
@@ -71,32 +70,32 @@ app.get('/group/getGroup', authorization.authorize, (req, res) => {
     });
 })
 
-app.get(`/groupInfo/:groupId`, authorization.authorize, (req,res)=>{
+app.get(`/groupInfo/:groupId`, authorization.authorize, (req, res) => {
   raw.execute(`SELECT cg.id AS groupid, cg.UserId AS admin, gu.UserId AS member
     FROM chatgroups cg
     JOIN GroupUsers gu
     ON cg.id=gu.GroupId
     WHERE cg.id=${req.params.groupId}`).then((result) => {
-      if(req.user.id==result[0][0].admin){
-        result[0].push(true)
-      }else{
-        result[0].push(false)
-      }
-      res.send(result[0])
-      
-    }).catch((err) => {
-      console.log(err);
-    });
+    if (req.user.id == result[0][0].admin) {
+      result[0].push(true)
+    } else {
+      result[0].push(false)
+    }
+    res.send(result[0])
+
+  }).catch((err) => {
+    console.log(err);
+  });
 })
 
-app.get(`/deleteGroup/:groupId`, authorization.authorize, (req,res)=>{
+app.get(`/deleteGroup/:groupId`, authorization.authorize, (req, res) => {
   Group.findByPk(req.params.groupId).then((result) => {
-    if(result.UserId==req.user.id){
-      Chat.destroy({where:{chatgroupId: req.params.groupId}})
-      GroupUser.destroy({where:{GroupId: req.params.groupId}})
-      Group.destroy({where: {id: req.params.groupId}})
+    if (result.UserId == req.user.id) {
+      Chat.destroy({ where: { chatgroupId: req.params.groupId } })
+      GroupUser.destroy({ where: { GroupId: req.params.groupId } })
+      Group.destroy({ where: { id: req.params.groupId } })
       res.status(201).send('Group Deleted')
-    }else{
+    } else {
       res.status(401).send('Not the admin.')
     }
   }).catch((err) => {
@@ -153,13 +152,13 @@ app.get("/getChat/", (req, res, next) => {
     raw.execute(`SELECT *
     FROM Chats c
     WHERE chatgroupId=${req.query.GroupId}`)
-    .then((result) => {
+      .then((result) => {
         res.json(result[0])
       }).catch((err) => {
         console.log(err);
       });
   } else {
-    Chat.findAll({where:{chatgroupId: req.query.GroupId}}).then((result) => {
+    Chat.findAll({ where: { chatgroupId: req.query.GroupId } }).then((result) => {
       if (result) {
         lastLSId = req.query.MessageId
         lastId = result.slice(-1)[0].id

@@ -6,9 +6,9 @@ const chatthead = document.getElementById("chatthead");
 const main_chat = document.getElementById("main-chat");
 const inviteLink = document.getElementById("inviteLink");
 const invitebtn = document.getElementById("invite");
-const socket=io('http://localhost:3000')
+const socket = io('http://localhost:3000')
 
-socket.emit('batman', 'kuch to karle nalle')
+// socket.emit('batman', 'kuch to karle nalle')
 
 invitebtn.addEventListener("click", (e) => {
   e.preventDefault();
@@ -55,8 +55,8 @@ window.addEventListener("DOMContentLoaded", async (e) => {
 });
 
 async function renderChat(groupName, groupId) {
-  main_chat.innerHTML = `<div class="table-responsive" style="overflow-x: hidden;">
-                      <table class="table table-striped" id="table">
+  main_chat.innerHTML = `<div class="table-responsive" style="overflow-x: hidden;" id="table">
+                      <table class="table table-striped">
                         <thead id="chatthead">
                           <tr>
                             <th scope="col">${groupName}
@@ -187,7 +187,7 @@ async function renderChat(groupName, groupId) {
         });
     }
   });
-
+  chattbody.innerHTML=''
   localStorage.setItem("message", JSON.stringify([]));
   try {
     const chat = await axios.get(`http://localhost:3000/getChat/?MessageId=${JSON.parse(localStorage.getItem("message"))[-1]}&GroupId=${groupId}`,
@@ -216,13 +216,14 @@ async function renderChat(groupName, groupId) {
         console.log(error);
       }
     }
+    chattbody.scrollTop=chattbody.scrollHeight
   } catch (err) {
     console.log(err);
   }
 
-
   send.addEventListener("click", async (e) => {
     e.preventDefault();
+    socket.emit('batman', 'Send Pressed')
     try {
       const result = await axios.post(
         "http://localhost:3000/postChat",
@@ -249,12 +250,12 @@ async function renderChat(groupName, groupId) {
       } catch (err) {
         console.log(err);
       }
-      chat.value=''
+      chat.value = ''
     } catch (error) {
       console.log(error);
     }
   });
-
+  chattbody.setAttribute("style", '"overflow-x: hidden;"');
 }
 
 let selectedRow = null;
@@ -277,7 +278,10 @@ async function renderGroup() {
           e.target.setAttribute("style", "background-color: #0095dd; color: white;");
           selectedRow = e.target;
           renderChat(row.textContent, e.target.parentElement.id);
-          chattbody.setAttribute("style", '"overflow-x: hidden;"');
+          socket.on('renderChat', (message)=>{
+            renderChat(row.textContent, e.target.parentElement.id);
+          })
+          
         });
         grptbody.prepend(row);
       }
@@ -287,7 +291,7 @@ async function renderGroup() {
     });
 }
 
-const inputElement=document.getElementById('myInput')
+const inputElement = document.getElementById('myInput')
 function myFunction() {
   const input = document.getElementById("myInput");
   const filter = input.value.toUpperCase();
@@ -305,4 +309,4 @@ function myFunction() {
     }
   }
 }
-inputElement.onkeyup=myFunction
+inputElement.onkeyup = myFunction
