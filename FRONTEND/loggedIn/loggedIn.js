@@ -1,3 +1,4 @@
+// import { io } from "socket.io-client"
 const logOut = document.getElementById("logOut");
 const crtGrp = document.getElementById("dropdown");
 const grptbody = document.getElementById("grptbody");
@@ -5,6 +6,9 @@ const chatthead = document.getElementById("chatthead");
 const main_chat = document.getElementById("main-chat");
 const inviteLink = document.getElementById("inviteLink");
 const invitebtn = document.getElementById("invite");
+const socket=io('http://localhost:3000')
+
+socket.emit('batman', 'kuch to karle nalle')
 
 invitebtn.addEventListener("click", (e) => {
   e.preventDefault();
@@ -190,13 +194,13 @@ async function renderChat(groupName, groupId) {
       { headers: { Authorization: localStorage.getItem("token") } }
     );
     if (chat) {
-      message = JSON.parse(localStorage.getItem("message"));
+      let message = JSON.parse(localStorage.getItem("message"));
       message = message.concat(chat.data);
       message = message.slice(-10);
       localStorage.setItem("message", JSON.stringify(message));
     }
-    array = JSON.parse(localStorage.getItem("message"));
-    for (element of array) {
+    let array = JSON.parse(localStorage.getItem("message"));
+    for (let element of array) {
       const row = document.createElement("tr");
       const data = document.createElement("td");
       try {
@@ -260,7 +264,7 @@ async function renderGroup() {
       headers: { Authorization: localStorage.getItem("token") },
     })
     .then((result) => {
-      for (element of result.data) {
+      for (let element of result.data) {
         const row = document.createElement("tr");
         row.setAttribute("id", `${element.GroupId}`);
         const data = document.createElement("td");
@@ -283,15 +287,16 @@ async function renderGroup() {
     });
 }
 
+const inputElement=document.getElementById('myInput')
 function myFunction() {
   const input = document.getElementById("myInput");
-  filter = input.value.toUpperCase();
-  table = document.getElementById("myTable");
-  tr = table.getElementsByTagName("tr");
-  for (i = 0; i < tr.length; i++) {
-    td = tr[i].getElementsByTagName("td")[0];
+  const filter = input.value.toUpperCase();
+  const table = document.getElementById("myTable");
+  const tr = table.getElementsByTagName("tr");
+  for (let i = 0; i < tr.length; i++) {
+    const td = tr[i].getElementsByTagName("td")[0];
     if (td) {
-      txtValue = td.textContent || td.innerText;
+      const txtValue = td.textContent || td.innerText;
       if (txtValue.toUpperCase().indexOf(filter) > -1) {
         tr[i].style.display = "";
       } else {
@@ -300,3 +305,4 @@ function myFunction() {
     }
   }
 }
+inputElement.onkeyup=myFunction

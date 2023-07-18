@@ -7,6 +7,12 @@ const jwt = require("jsonwebtoken");
 const server=require('http').createServer(app)
 const io=require('socket.io')(server)
 
+io.on("connection", (socket)=>{
+  console.log(socket.id);
+  socket.on('batman', (message)=>{
+    console.log(message);
+  })
+})
 
 const User = require("./models/user");
 const Chat = require("./models/chat");
