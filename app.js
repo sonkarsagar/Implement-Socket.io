@@ -1,10 +1,11 @@
 require("dotenv").config();
-const express = require("express");
-const app = express();
+const app = require("express")();
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const path = require('path')
 const jwt = require("jsonwebtoken");
+const server=require('http').createServer(app)
+const io=require('socket.io')(server)
 
 const User = require("./models/user");
 const Chat = require("./models/chat");
@@ -165,14 +166,6 @@ app.get("/getChat/", (req, res, next) => {
   }
 });
 
-// app.get('/group/getGroupChat/:GroupId', (req, res) => {
-//   Chat.findAll({ where: { chatgroupId: req.params.GroupId } }).then((result) => {
-//     res.json(result)
-//   }).catch((err) => {
-//     console.log(err);
-//   });
-// })
-
 app.use((req, res) => {
   res.sendFile(path.join(__dirname, `./FRONTEND/${req.url}`))
 })
@@ -191,7 +184,7 @@ sequelize
   .sync()
   // .sync({force: true})
   .then((result) => {
-    app.listen(3000);
+    server.listen(3000)
   })
   .catch((err) => {
     console.log(err);

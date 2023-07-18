@@ -20,7 +20,7 @@ crtGrp.addEventListener("click", (e) => {
   e.preventDefault();
   const grpName = prompt("Name your Group:", "New Group");
   if (grpName) {
-    axios.get(`http://100.26.98.177/groupParams/${grpName}`, { headers: { Authorization: localStorage.getItem("token") }, }).then((result) => {
+    axios.get(`http://localhost:3000/groupParams/${grpName}`, { headers: { Authorization: localStorage.getItem("token") }, }).then((result) => {
 
     }).catch((err) => {
       console.log(err);
@@ -33,20 +33,20 @@ logOut.addEventListener("click", (e) => {
   e.preventDefault();
   localStorage.removeItem("token");
   localStorage.removeItem("message");
-  location.replace("http://100.26.98.177/logIn/login.html");
+  location.replace("http://localhost:3000/logIn/login.html");
 });
 
 window.addEventListener("DOMContentLoaded", async (e) => {
   e.preventDefault();
   if (!localStorage.getItem("token")) {
-    location.replace("http://100.26.98.177/logIn/login.html");
+    location.replace("http://localhost:3000/logIn/login.html");
   }
   try {
     renderGroup();
   } catch (err) {
     localStorage.removeItem("token");
     localStorage.removeItem("message");
-    location.replace("http://100.26.98.177/logIn/login.html");
+    location.replace("http://localhost:3000/logIn/login.html");
   }
 });
 
@@ -86,7 +86,7 @@ async function renderChat(groupName, groupId) {
       let inputElement = document.createElement("input");
       inputElement.setAttribute(
         "value",
-        `http://100.26.98.177/copyLink?grpname=${groupName}&grpId=${groupId}`
+        `http://localhost:3000/copyLink?grpname=${groupName}&grpId=${groupId}`
       );
       document.body.appendChild(inputElement);
       inputElement.select();
@@ -94,7 +94,7 @@ async function renderChat(groupName, groupId) {
       inputElement.parentNode.removeChild(inputElement);
     } else if (e.target.textContent === "Group members") {
       axios
-        .get(`http://100.26.98.177/groupInfo/${groupId}`, {
+        .get(`http://localhost:3000/groupInfo/${groupId}`, {
           headers: { Authorization: localStorage.getItem("token") },
         })
         .then((result) => {
@@ -105,7 +105,7 @@ async function renderChat(groupName, groupId) {
               const row = document.createElement("tr");
               const data = document.createElement("td");
               const User = await axios.get(
-                `http://100.26.98.177/getUser/${element.member}`,
+                `http://localhost:3000/getUser/${element.member}`,
                 { headers: { Authorization: localStorage.getItem("token") } }
               );
               if (result.data.slice(-1)[0] === true) {
@@ -131,7 +131,7 @@ async function renderChat(groupName, groupId) {
                   deleteb.addEventListener("click", (e) => {
                     e.preventDefault();
                     axios.get(
-                      `http://100.26.98.177/removeMember?memberId=${e.target.parentElement.id}&groupId=${groupId}`,
+                      `http://localhost:3000/removeMember?memberId=${e.target.parentElement.id}&groupId=${groupId}`,
                       {
                         headers: {
                           Authorization: localStorage.getItem("token"),
@@ -171,7 +171,7 @@ async function renderChat(groupName, groupId) {
         });
     } else {
       axios
-        .get(`http://100.26.98.177/deleteGroup/${groupId}`, {
+        .get(`http://localhost:3000/deleteGroup/${groupId}`, {
           headers: { Authorization: localStorage.getItem("token") },
         })
         .then((result) => {
@@ -186,7 +186,7 @@ async function renderChat(groupName, groupId) {
 
   localStorage.setItem("message", JSON.stringify([]));
   try {
-    const chat = await axios.get(`http://100.26.98.177/getChat/?MessageId=${JSON.parse(localStorage.getItem("message"))[-1]}&GroupId=${groupId}`,
+    const chat = await axios.get(`http://localhost:3000/getChat/?MessageId=${JSON.parse(localStorage.getItem("message"))[-1]}&GroupId=${groupId}`,
       { headers: { Authorization: localStorage.getItem("token") } }
     );
     if (chat) {
@@ -200,7 +200,7 @@ async function renderChat(groupName, groupId) {
       const row = document.createElement("tr");
       const data = document.createElement("td");
       try {
-        const User = await axios.get(`http://100.26.98.177/getUser/${element.UserId}`,
+        const User = await axios.get(`http://localhost:3000/getUser/${element.UserId}`,
           { headers: { Authorization: localStorage.getItem("token") } }
         );
         data.appendChild(
@@ -221,7 +221,7 @@ async function renderChat(groupName, groupId) {
     e.preventDefault();
     try {
       const result = await axios.post(
-        "http://100.26.98.177/postChat",
+        "http://localhost:3000/postChat",
         {
           chat: chat.value,
           chatgroupid: groupId,
@@ -232,7 +232,7 @@ async function renderChat(groupName, groupId) {
         const row = document.createElement("tr");
         const data = document.createElement("td");
         const User = await axios.get(
-          `http://100.26.98.177/getUser/${result.data.UserId}`,
+          `http://localhost:3000/getUser/${result.data.UserId}`,
           { headers: { Authorization: localStorage.getItem("token") } }
         );
         data.appendChild(
@@ -256,7 +256,7 @@ async function renderChat(groupName, groupId) {
 let selectedRow = null;
 async function renderGroup() {
   axios
-    .get(`http://100.26.98.177/group/getGroup`, {
+    .get(`http://localhost:3000/group/getGroup`, {
       headers: { Authorization: localStorage.getItem("token") },
     })
     .then((result) => {
