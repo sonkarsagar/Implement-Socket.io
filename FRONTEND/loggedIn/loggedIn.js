@@ -54,6 +54,8 @@ window.addEventListener("DOMContentLoaded", async (e) => {
   }
 });
 
+localStorage.setItem("message", JSON.stringify([]));
+
 export async function renderChat(groupName, groupId) {
   main_chat.innerHTML = `<div class="table-responsive" style="overflow-x: hidden;" id="table">
                       <table class="table table-striped">
@@ -150,7 +152,6 @@ export async function renderChat(groupName, groupId) {
     }
   });
   chattbody.innerHTML = ''
-  localStorage.setItem("message", JSON.stringify([]));
   try {
     const chat = await axios.get(`http://100.26.98.177/getChat/?MessageId=${JSON.parse(localStorage.getItem("message"))[-1]}&GroupId=${groupId}`, { headers: { Authorization: localStorage.getItem("token") } });
     if (chat) {
