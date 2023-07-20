@@ -6,6 +6,7 @@ const path = require('path')
 const jwt = require("jsonwebtoken");
 const server = require('http').createServer(app)
 const io = require('socket.io')(server)
+const AWS = require("aws-sdk");
 
 io.on("connection", (socket) => {
   socket.on('batman', (message) => {
@@ -17,6 +18,7 @@ const User = require("./models/user");
 const Chat = require("./models/chat");
 const Group = require('./models/group')
 const GroupUser = require('./models/groupUser')
+const Upload = require('./models/upload')
 const sequelize = require("./util/database");
 const raw = require('./util/rawdatabse')
 const bcrypt = require("bcrypt");
@@ -27,13 +29,11 @@ const userRoutes = require('./routers/userRoute')
 const loginRoutes = require('./routers/loginRoute');
 const Sequelize = require("sequelize");
 
-app.use(
-  cors({
-    origin: "http://localhost:5500",
-  })
-);
+app.use(cors({
+  origin: "http://localhost:5500",
+}));
 
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '10mb' }));
 
 app.use(userRoutes)
 app.use(loginRoutes)
@@ -172,6 +172,53 @@ app.get("/getChat/", (req, res, next) => {
   }
 });
 
+app.post("/file/upload", authorization.authorize, async (req, res, next) => {
+  fileData = JSON.stringify(req.body);
+  let s3 = new AWS.S3({
+    region: "ap-south-1",
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  });
+  s3.upload({
+    Bucket: "group-chat-ss-s3",
+    Key: `${req.user.first} ${req.user.sur} Chat ${new Date()}.txt`,
+    Body: fileData,
+    ACL: "public-read",
+  }, (err, data) => {
+    if (err) {
+      console.log(err);
+    } else {
+      Upload.create({
+        link: data.Location,
+        userId: req.user.id,
+      });
+      res.send(data);
+    }
+  });
+});
+
+app.use('/fetchbase64/:txt', (req, res) => {
+  const s3 = new AWS.S3({
+    region: "ap-south-1",
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  });
+
+  const params = {
+    Bucket: "group-chat-ss-s3",
+    Key: req.params.txt,
+  };
+
+  s3.getObject(params, (err, data) => {
+    if (err) {
+      console.log(err);
+    } else {
+      res.send(Buffer.from(data.Body, 'base64').toString());
+    }
+  });
+
+})
+
 app.use((req, res) => {
   res.sendFile(path.join(__dirname, `./FRONTEND/${req.url}`))
 })
@@ -185,6 +232,8 @@ Group.belongsTo(User)
 Group.hasMany(Chat)
 Chat.belongsTo(Group)
 
+User.hasMany(Upload)
+Upload.belongsTo(User)
 
 sequelize
   .sync()
