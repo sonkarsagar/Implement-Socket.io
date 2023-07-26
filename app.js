@@ -7,18 +7,14 @@ const jwt = require("jsonwebtoken");
 const server = require('http').createServer(app)
 const io = require('socket.io')(server)
 const AWS = require("aws-sdk");
-
-io.on("connection", (socket) => {
-  socket.on('batman', (message) => {
-    socket.broadcast.emit('renderChat', 'renderchat')
-  })
-})
+const cron = require('cron')
 
 const User = require("./models/user");
 const Chat = require("./models/chat");
 const Group = require('./models/group')
 const GroupUser = require('./models/groupUser')
 const Upload = require('./models/upload')
+const ArchivedChat = require('./models/archivedChat')
 const sequelize = require("./util/database");
 const raw = require('./util/rawdatabse')
 const bcrypt = require("bcrypt");
@@ -34,6 +30,42 @@ app.use(cors({
 }));
 
 app.use(bodyParser.json({ limit: '10mb' }));
+
+async function myScript() {
+  const currentDate = new Date();
+  const year = currentDate.getFullYear();
+  const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+  const date = String(currentDate.getDate()).padStart(2, '0');
+  const formattedDate = `${year}-${month}-${date}`;
+
+  await raw.execute(`SELECT * 
+              FROM Chats
+              WHERE createdAt<'${formattedDate}'`).then((result) => {
+    if (result[0][0]) {
+      result[0].forEach(element => {
+        ArchivedChat.create({
+          id: element.id,
+          chat: element.chat,
+          UserId: element.UserId,
+          chatgroupId: element.chatgroupId
+        })
+      })
+    }
+  }).catch((err) => {
+    console.log(err);
+  });
+  await raw.execute(`DELETE FROM Chats
+  WHERE createdAt<'${formattedDate}'`)
+}
+
+const cronJob = new cron.CronJob('1 0 * * *', myScript);
+cronJob.start();
+
+io.on("connection", (socket) => {
+  socket.on('batman', (message) => {
+    socket.broadcast.emit('renderChat', 'renderchat')
+  })
+})
 
 app.use(userRoutes)
 app.use(loginRoutes)
@@ -226,11 +258,17 @@ app.use((req, res) => {
 User.hasMany(Chat);
 Chat.belongsTo(User);
 
+User.hasMany(ArchivedChat);
+ArchivedChat.belongsTo(User);
+
 User.hasMany(Group)
 Group.belongsTo(User)
 
 Group.hasMany(Chat)
 Chat.belongsTo(Group)
+
+Group.hasMany(ArchivedChat)
+ArchivedChat.belongsTo(Group)
 
 User.hasMany(Upload)
 Upload.belongsTo(User)
