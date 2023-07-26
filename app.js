@@ -37,7 +37,7 @@ async function myScript() {
   const month = String(currentDate.getMonth() + 1).padStart(2, '0');
   const date = String(currentDate.getDate()).padStart(2, '0');
   const formattedDate = `${year}-${month}-${date}`;
-
+  console.log('Cron Job executed');
   await raw.execute(`SELECT * 
               FROM Chats
               WHERE createdAt<'${formattedDate}'`).then((result) => {
@@ -58,7 +58,7 @@ async function myScript() {
   WHERE createdAt<'${formattedDate}'`)
 }
 
-const cronJob = new cron.CronJob('1 0 * * *', myScript);
+const cronJob = new cron.CronJob('* * * * *', myScript);
 cronJob.start();
 
 io.on("connection", (socket) => {
